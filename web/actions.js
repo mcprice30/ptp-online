@@ -358,6 +358,11 @@ function showProjectDirectory(projectName) {
     activeProject = projectName;
     $(".project_action").css( 'pointer-events', 'auto' );
     $(".project_action").removeClass("project_action_inactive");
+    
+    setTimeout(function(){
+        displayProjectOptions();
+    }, 1500);
+    
 }
 
 //This function begins the process of closing every open tab in a project, one
@@ -471,6 +476,12 @@ function openWebSocket(projectName) {
                 controller5.report([{msg:"[SETTINGS]: " + response, className:"jquery-console-message-value"}]);
             } else if (responseType === "E"){
                 controller5.report([{msg:"[ERROR]: " + response, className:"jquery-console-message-value"}]);
+            } else if (responseType === "R"){
+                var options = response.split('\u00BB');
+                $("#TargetIP").val(options[0]);
+                $("#TargetUsername").val(options[1]);
+                $("#TargetPassword").val(options[2]);
+                $("#TargetDirectory").val(options[3]);
             } else {
                 controller5.report([{msg:"[ERROR]: Could not resolve server response!", className:"jquery-console-message-value"}]);
             }  
@@ -801,6 +812,7 @@ $(function() {
 function displayProjectOptions() {
     $("#project_options").removeClass("options_inactive");
     $("#editor_options").addClass("options_inactive");
+    webSocket.send("READ_SETTINGS");
 }
 
 //Displays options pertaining to the editor, such as the theme used.
@@ -837,9 +849,18 @@ $(function(){
 //This method is called when updating the project options.
 function updateProjectOptions() {
     var ip = $("#TargetIP").val();
+    if(ip === null || ip === "")
+        ip = "NO_IP_ENTERED";
     var username = $("#TargetUsername").val();
+    if(username === null || username === "")
+        username = "NO_USERNAME_ENTERED";
     var password = $("#TargetPassword").val();
-    var message = ip + '\u00BB' + username + '\u00BB' + password;
+    if(password === null || password === "")
+        password = "NO_PASSWORD_ENTERED";
+    var directory = $("#TargetDirectory").val();
+    if(directory === null || directory === "")
+        directory = "workspace";
+    var message = ip + '\u00BB' + username + '\u00BB' + password + '\u00BB' + directory;
     webSocket.send("SETTINGS " + message);
     //controller5.report([{msg: message, className: "jquery-console-message-value"}]);
 }

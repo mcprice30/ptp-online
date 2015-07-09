@@ -50,6 +50,7 @@ public class LoadServer {
     private static final String DELETE_KEY = "DELETE";
     private static final String DELETE_PROJECT_KEY = "DELETE_PROJECT";
     private static final String SETTINGS_KEY = "SETTINGS";
+    private static final String READ_SETTINGS_KEY = "READ_SETTINGS";
     
     private static final String SAVE_RESPONSE = "S";
     private static final String LOAD_RESPONSE = "L";
@@ -59,10 +60,12 @@ public class LoadServer {
     private static final String PROJECT_RESPONSE = "P";
     private static final String SETTINGS_RESPONSE = "G";
     private static final String ERROR_RESPONSE = "E";
+    private static final String READ_SETTINGS_RESPONSE = "R";
     
     private static String ip = null;
     private static String username = null;
     private static String password = null;
+    private static String directory = null;
     
     /**
      *  The onOpen message sends a message back to the client side once
@@ -78,6 +81,12 @@ public class LoadServer {
             session.getBasicRemote().sendText(PROJECT_RESPONSE + "Ready to load from: " + projectName);
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+        String initialSettings = performReadSettings(projectName);
+        initialSettings = initialSettings.substring(1, initialSettings.length());
+        char delimiter = 187;
+        if(!initialSettings.equals("ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace")) {
+            performUpdateSettings(initialSettings, projectName);
         }
     }
     
@@ -150,7 +159,9 @@ public class LoadServer {
             case DELETE_PROJECT_KEY:
                 return performDeleteProject(projectName);
             case SETTINGS_KEY:
-                return performUpdateSettings(payload);
+                return performUpdateSettings(payload, projectName);
+            case READ_SETTINGS_KEY:
+                return performReadSettings(projectName);
             default:
                 return ERROR_RESPONSE + "Unknown Action!";
         }
@@ -172,9 +183,9 @@ public class LoadServer {
             in.close();
             return LOAD_RESPONSE + response;
         } catch (FileNotFoundException e) {
-            return SAVE_RESPONSE + "Unable to find file!";
+            return ERROR_RESPONSE + "Unable to find file!";
         } catch (IOException e) {
-            return SAVE_RESPONSE + "Error loading file!";
+            return ERROR_RESPONSE + "Error loading file!";
         }
     }
     
@@ -333,26 +344,57 @@ public class LoadServer {
      * by a special character (187), sets the private fields equal to the given
      * data.
      * @param payload The settings to update, separated by a special delimiter.
+     * @param projectName The name of the project being worked on.
      * @return A message indicating the success of the action.
      */
-    public static String performUpdateSettings(String payload) {
+    public static String performUpdateSettings(String payload, String projectName) {
+        System.out.println(payload);
+        String propertiesFile = WorkspaceResource.getResourceBase() + "/" + projectName + "/.settings.prop";
         char delimiter = 187;
         String[] settingsList = payload.split((delimiter + ""));
         try {
             ip = settingsList[0];
             username = settingsList[1];
             password = settingsList[2];
+            directory = settingsList[3];
             
             String output = SETTINGS_RESPONSE + "Settings updated successfully!";
             //  output += "\nIP: " + ip;
             // output += "\nUsername: " + username;
             // output += "\nPassword: " + password;
-            return output;
         } catch (ArrayIndexOutOfBoundsException e) {
             return SETTINGS_RESPONSE + "Could not resolve message from client!";    
         }
+        
+        try {
+            PrintWriter out = new PrintWriter(propertiesFile);
+            out.print(payload);
+            out.close();
+            return (SETTINGS_RESPONSE + "Settings updated successfully!");
+        } catch (IOException e) {
+            return SETTINGS_RESPONSE + "Could not save settings!";
+        }
+        
     }
     
+    public static String performReadSettings(String projectName) {
+        char delimiter = 187;
+        String defaultResponse = "ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace";
+        String response;    //The response. (Begins with response key).
+        String propertiesFile = WorkspaceResource.getResourceBase() + "/" + projectName + "/.settings.prop";
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(propertiesFile));
+            response = in.readLine();
+            in.close();
+            return READ_SETTINGS_RESPONSE + response;
+        } catch (FileNotFoundException e) {
+            System.out.println("Settings file not found!");
+            return READ_SETTINGS_RESPONSE + defaultResponse;
+        } catch (IOException e) {
+            System.out.println("Error reading settings file!");
+            return READ_SETTINGS_RESPONSE + defaultResponse;
+        }
+    }
     
     /**
      * Invokes rsync to synchronize files from the server to the target
@@ -361,6 +403,6 @@ public class LoadServer {
      * @return 
      */
     public static String syncFiles(String projectName) {
-        return FileSync.syncFiles(ip, username, password, projectName);
+        return FileSync.syncFiles(ip, username, password, directory, projectName);
     }
 }
