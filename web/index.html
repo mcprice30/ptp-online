@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+          "http://www.w3.org/TR/html4/strict.dtd">
+
+
+<!-- 
+    PTP Online Editor
+    Developed by Mitch Price under supervision of Dr. Jeff Overbey
+    Auburn University, 2015.
+    
+    TODO: find an appropriate license and insert it here.
+
+    This project would not be possible without the following open source projects:
+    CodeMirror Online Editor, by Marijn Haverbeke and others    (codemirror.net)   
+    jquery-console by chrisdone.    (github.com/chrisdone/jquery-console)
+    jquery File Tree by Cory LaViska    (abeautifulsite.net)
+-->
+
+<html>
+  <head>
+    <title>PTP Online Editor</title>
+    <meta name="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="resources/jquery.easing.js"></script>
+    <script type="text/javascript" src="resources/jquery.console.js"></script>
+    <script type ="text/javascript" src="resources/codemirror.js"></script>
+    <link rel="icon" type="image/png" href="resources/images/favicon.png">
+    <link rel="stylesheet" href="resources/codemirror.css">
+    <link rel="stylesheet" href="resources/ptp-default.css">
+    <link rel="stylesheet" href="resources/3024-night.css">
+    <link rel="stylesheet" href="resources/minimal.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="resources/jqueryFileTree.css">
+    <script type="text/javascript" src="resources/mode/clike.js"></script>
+    <script type="text/javascript" src="resources/jqueryFileTree.js"></script>
+    <script type="text/javascript" src="actions.js"></script>
+    <!--Adding Scripts for tooltips-->
+ <!--   <script type="text/javascript" src="resources/jquery.leanModal.min.js"></script> -->
+    
+  </head>
+  <body>
+    <noscript>
+      <p>
+        <strong>Please enable JavaScript or upgrade your browser.</strong>
+      </p>
+    </noscript>
+    
+    <!--    Main taskbar.
+        This includes the main menu icons, as well as quick action buttons.
+    -->  
+    <div id="taskbar">
+      <!--  <button type="button" onclick="createFile();">New File</button> -->
+        <!--
+        <button type="button" onclick="doSave();" >Save</button>
+        <button type="button" onclick="doBuild();">Build</button>
+        -->
+        <div id="menu_tabs">
+            <a href="#" id="open_file_menu" class="menu_tab menu_tab_active">File</a>
+            <a href="#" id="open_build_menu" class="menu_tab">Build</a>
+            <a href="#" id="open_options_menu" class="menu_tab">Options</a>
+        </div>
+        
+        <div id="file_menu" class="taskbar_menu">
+            <a href="#" id="save_file_trigger" class="file_action">Save</a>
+            <a href="#" id="new_file_trigger" class="project_action">New File</a>
+            <a href="#" id="contact">New Project</a>
+            <a href="#" id="closeCurrentProject" class="project_action">Close Project</a>
+            <a href="#" id="closeCurrentTab" class="file_action">Close Tab</a>
+            <a href="#" id="deleteCurrentFile" class="file_action">Delete File</a>
+            <a href="#" id="deleteCurrentProject" class="project_action">Delete Project</a>
+        </div>
+        
+        <div id="build_menu" class="menu_inactive taskbar_menu">
+            <a href="#" id="build_file_trigger" class="file_action">Build File</a>
+            <a href="#" id="build_project_trigger" class="project_action">Build Project</a>
+            <a href="#" id="run_project_trigger" class="project_action">Run Project</a>
+        </div>
+        
+        <div id="options_menu" class="menu_inactive taskbar_menu">
+            <a href="#" id="editor_options_trigger">Editor Options</a>
+            <a href="#" id="project_options_trigger" class="project_action">Project Options</a>
+        </div>
+        
+        
+
+        <!--<a id="modal_trigger" href="#modal" class="btn" rel="modal_newProject">New Project</a>
+        <a href ="www.google.com">Test</a>-->
+    </div>
+    
+    <!--    Navigation pane.
+        The navigation pane displays either the project selection tab or
+        the project's file tree.
+    -->
+    <div id="nav">
+        <div id="fileTree_header"></div>
+        <div id="fileTree_container"></div>
+    </div>  
+    
+
+    
+    <!--    Editor tabs.
+        The editor tabs div will hold tabs for switching between active
+        files.
+    -->
+    <div id="editortabs"></div>
+    
+    <!--    Editor
+        This div holds the codemirror editor.
+    -->
+    <div id="editor" onkeypress="markActiveDirty();">
+        <div id="editorContainer" class="active_editor_container">
+            <textarea id="myTextArea" rows="12" cols="50"></textarea>
+        </div>
+        <div id="noEditorContainer" class="inactive_editor_container">
+            
+        </div>
+    </div>
+    
+    <!--    Console 
+        The console div contains the jquery console emulator.
+    -->
+    <div id="cnsl"></div>
+    
+    <!--    Options
+        The options div holds either the IDE settings or the project
+        configuration.
+    -->
+    <div id="options">
+        <div id="project_options" class="options_inactive">
+            <h3>Project Options</h3>
+            <p><label for="TargetIP">Connection IP</label><input type="text" size="25" name="TargetIP" id="TargetIP"></p>
+            <p><label for="TargetUsername">Username</label><input type="text" size="25" name="TargetUsername" id="TargetUsername"></p>
+            <p><label for="TargetPassword">Password</label><input type="password" size="25" name="TargetPassword" id="TargetPassword"></p>
+            <p><label for="TargetConfig">Supercomputer Configuration</label><input type="text" size="25" name="TargetConfig" id="TargetConfig"></p>
+            <p><a id="save_project_options" href="#">Update Settings</a></p>
+        </div>
+        <div id="editor_options">
+            <h3>Editor Options</h3>
+            <p>Editor Theme</p>
+            <select id="editor_theme_box">
+                <option value="ptp-default" selected="selected">PTP Default</option>
+                <option value="3024-night">3024 Night</option>
+                <option value="minimal">Minimal</option>
+            </select>
+            <p><a id="save_editor_options" href="#">Update Settings</a></p>
+        </div>
+    </div>
+    
+    <!--    This div holds the pop-up
+            for creating a new project.
+    -->
+    <div class="messagepop pop">
+        <form method="post" id="new_message" action="/messages">
+            <p><label for="ProjectName">Project Name</label><input type="text" size="30" name="ProjectName" id="ProjectName"></p>
+            <p><label for="ProjectID">Project ID</label><input type="text" size="30" name="ProjectID" id="ProjectID"></p>
+            <p><a id ="createNewProject" href="#">Create Project</a><a class="close" href="/">X</a></p>
+        </form>
+    </div>
+    
+    <div class="newFilePop">
+        <form method="post" id="new_file_message" action="/messages">
+            <p><label for="FileName">File Name</label><input type="text" size="30" name="FileName" id="FileName"></p>
+            <p><label for="FilePath">File Path</label><input type="text" size="30" name="FilePath" id="FilePath"></p>
+            <p><a id ="createNewFile" href="#">Create File</a><a class="close" href="/">X</a></p>
+        </form>
+    </div>
+    
+    <div class="verifyFileSave">
+        <form method="post" id="verify_save_message" action="/messages">
+            <p>File is not saved! Would you like to save before closing the file?</p>
+            <p>
+                <a id="confirmFileSave" href="#">Save</a>
+                <a id="dontDoFileSave" href="#">Don't Save</a>
+                <a id="cancelFileClose" href="#">Cancel</a>
+            </p>
+        </form>
+    </div>
+    
+    <div class="confirmDeleteFile">
+        <form method="post" id="confirm_delete_save_message" action="/messages">
+            <p>Are you sure you would like to delete this? This cannot be undone.</p>
+            <p>(Any folders will have all of their contents deleted as well)</p>
+            <p>
+                <a id="confirmDelete" href="#">Yes</a>
+                <a class="close" href="#">No</a>
+            </p>
+        </form>
+    </div>
+    
+    <div class="confirmDeleteProject"> 
+        <form method="post" id="confirm_delete_project_message" action="/messages">
+            <p>Are you sure you would like to delete the project and all its files?</p>
+            <p>
+                <a id="confirmDeleteProject" href="#">Yes</a>
+                <a class="close" href="#">No</a>
+            </p>
+        </form>
+    </div>
+    
+    <script type="text/javascript">
+        //Putting the codemirror editor inside the editor div.
+        var myTextArea = document.getElementById("myTextArea");
+        var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("myTextArea"), {
+            lineNumbers: true,
+            styleActiveLine: true,
+            matchBrackets: true,
+            mode: "text/plain",
+            theme: "ptp-default",
+            height: "auto"
+        });
+        
+        //Sets the nav div to list the various projects.
+        $(document).ready(function() {
+            getWorkspaceBase();
+            setTimeout(function() {
+                listWorkspaceProjects();
+            }, 200);
+            
+        });
+        
+    </script>
+  </body>
+</html>

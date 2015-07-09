@@ -1,0 +1,40 @@
+/*
+    This is My color scheme. Sorry.
+    Name:       PTP default
+    Author:     Mitchell Price
+
+    CodeMirror template by Jan T. Sott (https://github.com/idleberg/base16-codemirror)
+    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
+
+*/
+
+.cm-s-ptp-default.CodeMirror {background: #333; color: #d6d5d4;}
+.cm-s-ptp-default div.CodeMirror-selected {background: #554444 !important;}
+.cm-s-ptp-default.CodeMirror ::selection { background: rgba(58, 52, 50, .99); }
+.cm-s-ptp-default.CodeMirror ::-moz-selection { background: rgba(58, 52, 50, .99); }
+.cm-s-ptp-default .CodeMirror-gutters {background: #444444; border-right: solid #000000 3px;}
+.cm-s-ptp-default .CodeMirror-guttermarker { color: #db2d20; }
+.cm-s-ptp-default .CodeMirror-guttermarker-subtle { color: #5c5855; }
+.cm-s-ptp-default .CodeMirror-linenumber {color: #dddddd;}
+
+.cm-s-ptp-default .CodeMirror-cursor {border-left: 1px solid #807d7c !important;}
+
+.cm-s-ptp-default span.cm-comment {color: #AAAAAA;}
+.cm-s-ptp-default span.cm-atom {color: #DD3333;}
+.cm-s-ptp-default span.cm-number {color: #DD33DD;}
+
+.cm-s-ptp-default span.cm-property, .cm-s-ptp-default span.cm-attribute {color: #01a252;}
+.cm-s-ptp-default span.cm-keyword {color: #33DDDD;}
+.cm-s-ptp-default span.cm-string {color: #DDDD33;}
+
+.cm-s-ptp-default span.cm-variable {color: #33DD33;}
+.cm-s-ptp-default span.cm-variable-2 {color: #33DD33;}
+.cm-s-ptp-default span.cm-def {color: #e8bbd0;} //Java Class Names
+.cm-s-ptp-default span.cm-bracket {color: #d6d5d4;}
+.cm-s-ptp-default span.cm-tag {color: #db2d20;}
+.cm-s-ptp-default span.cm-link {color: #a16a94;}
+.cm-s-ptp-default span.cm-error {background: #db2d20; color: #807d7c;}
+
+.cm-s-ptp-default .CodeMirror-activeline-background {background: #2F2F2F !important;}
+.cm-s-ptp-default .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
+

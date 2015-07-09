@@ -1,0 +1,42 @@
+/*
+    This is my color scheme. Sorry.
+    Name:       Minimal
+    Author:     Mitchell Price
+
+    CodeMirror template by Jan T. Sott (https://github.com/idleberg/base16-codemirror)
+    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
+
+*/
+
+.cm-s-minimal.CodeMirror {background: #EEEEEE; color: #111111;}
+.cm-s-minimal div.CodeMirror-selected {background: #554444 !important;}
+.cm-s-minimal.CodeMirror ::selection { background: rgba(58, 52, 50, .99); }
+.cm-s-minimal.CodeMirror ::-moz-selection { background: rgba(58, 52, 50, .99); }
+.cm-s-minimal .CodeMirror-gutters {background: #444444; border-right: solid #000000 3px;}
+.cm-s-minimal .CodeMirror-guttermarker { color: #db2d20; }
+.cm-s-minimal .CodeMirror-guttermarker-subtle { color: #5c5855; }
+.cm-s-minimal .CodeMirror-linenumber {color: #dddddd;}
+
+.cm-s-minimal .CodeMirror-cursor {border-left: 1px solid #21201F !important;}
+
+.cm-s-minimal span.cm-comment {color: #888888;}
+.cm-s-minimal span.cm-atom {color: #111111;}
+.cm-s-minimal span.cm-number {color: #111111;}
+
+.cm-s-minimal span.cm-property, .cm-s-minimal span.cm-attribute {color: #01a252;}
+.cm-s-minimal span.cm-keyword {color: #BB00FF;}
+.cm-s-minimal span.cm-string {color: #11BB11;}
+
+.cm-s-minimal span.cm-variable {color: #111111;}
+.cm-s-minimal span.cm-variable-2 {color: #111111;}
+.cm-s-minimal span.cm-def {color: #111111;} //Java Class Names
+.cm-s-minimal span.cm-bracket {color: #111111;}
+.cm-s-minimal span.cm-tag {color: #111111;}
+.cm-s-minimal span.cm-link {color: #111111;}
+.cm-s-minimal span.cm-error {background: #db2d20; color: #807d7c;}
+
+.cm-s-minimal .CodeMirror-activeline-background {background: #2F2F2F !important;}
+.cm-s-minimal .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
+
+
+

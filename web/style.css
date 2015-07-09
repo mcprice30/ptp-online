@@ -1,0 +1,420 @@
+/* 
+ *  PTP Online Editor
+ *   Developed by Mitch Price under supervision of Dr. Jeff Overbey
+ *   Auburn University, 2015.
+ *   
+ *   TODO: find an appropriate license and insert it here.
+ *
+ *   This project would not be possible without the following open source projects:
+ *   CodeMirror Online Editor, by Marijn Haverbeke and others    (codemirror.net)   
+ *   jquery-console by chrisdone.    (github.com/chrisdone/jquery-console)
+ *   jquery File Tree by Cory LaViska    (abeautifulsite.net)
+ */
+
+/* 
+    Created on : Jun 25, 2015, 10:18:12 AM
+    Author     : Mitch
+*/
+
+
+
+header, section, footer, aside, nav, main, article, figure {
+    display: block; 
+}
+
+div.jquery-console-inner { 
+    width:900px; 
+    height:150px;
+    background:#333;
+    padding:5px;
+    overflow:auto; 
+}
+      
+div.jquery-console-prompt-box { 
+    color:#fff; 
+    font-family:monospace; 
+}
+
+div.jquery-console-focus span.jquery-console-cursor { 
+    background:#fefefe;
+    color:#333;
+    font-weight:bold 
+}
+
+div.jquery-console-message-error{
+    color:#ef0505;
+    font-family:sans-serif;
+    font-weight:bold;
+    padding:0px; 
+}
+
+div.jquery-console-message-value {
+    color:#fefefe;
+    font-family:monospace;
+    padding:0px;
+}
+
+div.jquery-console-message-type { 
+    color:#52666f; 
+    font-family:monospace;
+    padding:0px; 
+}
+
+span.jquery-console-prompt-label { 
+    font-weight:bold
+}
+      
+.CodeMirror {
+    height: 100%;
+    font-family: "Consolas", Courier, monospace;
+}
+      
+#taskbar {
+    background-color:#444444;
+    height:75px;
+    width:100%;
+    border-bottom: solid #000000 3px;
+    padding: 0px;
+    font-family: "Segoe UI";
+}
+      
+#nav {
+    background-color:#eeeeee;
+    height:580px;
+    width:175px;
+    float:left;
+    padding:0px;
+    border-right: solid #000000 3px;
+    overflow: auto;
+    font-family: "Segoe UI";
+}
+
+#editortabs {
+    background-color: #555555;
+    height:20px;
+    width:910px;
+    float:left;
+    border-bottom: solid #000000 3px;
+    border-right: solid #000000 3px;
+    overflow-y: auto;
+    font-family: "Segoe UI";
+}
+      
+#editor {
+    background-color:#00ff00;
+    height:394px;
+    width:910px;
+    float:left;
+    padding:0px;
+    border-bottom: solid #000000 3px;
+    border-right: solid #000000 3px;
+    font-family: "Comic Sans MS";
+    font-size: 10pt;
+}
+      
+#cnsl {
+    float:left;
+    border-right: solid #000000 3px;
+    //font-family:monospace;
+}
+      
+#options {
+    position: absolute;
+    top: 86px;
+    left: 1094px;
+    height:580px;
+    background-color: #444444;
+    padding:0px;
+    //border-top: solid #000000 3px;
+    border-left: solid #000000 3px;
+    border-bottom: solid #000000 3px;
+    width: 200px;
+    padding-left: 5px;
+    font-family: "Segoe UI";
+}
+      
+html, body {
+    background: #444444;
+    overflow: hidden;
+}
+      
+::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+}
+      
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 15, 0.1);
+}
+      
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 15, 0.5);
+}
+      
+::-webkit-scrollbar-button {
+    //background-color: rgba(100, 100, 115, 0.3);
+} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+ 
+::-webkit-scrollbar-corner {
+    background-color: black !important;
+} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
+
+#editortabs::-webkit-scrollbar-thumb {
+    display: none;
+}
+
+#editortabs::-webkit-scrollbar-button {
+    height:10px;
+}
+
+#editortabs::-webkit-scrollbar-button:vertical:decrement {
+    background-image: url("resources/images/UpArrow.png");
+    //background-color: #FF0000;
+}
+
+#editortabs::-webkit-scrollbar-button:vertical:increment {
+    //background-color: #FF0000;
+    background-image: url("resources/images/DownArrow.png");
+}
+
+a.selected {
+  z-index:100;
+}
+
+.messagepop {
+  background-color:#444444;
+  border:1px solid #999999;
+  color: #EEEEEE;
+  cursor:default;
+  display:none;
+  margin-top: 15px;
+  position:absolute;
+  text-align:center;
+  width:40%;
+  z-index:50;
+  padding: 25px 25px 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 3px;
+  padding-left: 15px;
+  text-indent: -15px;
+}
+
+.messagepop p, .messagepop.div {
+  border-bottom: 1px solid #EFEFEF;
+  margin: 8px 0;
+  padding-bottom: 8px;
+}
+
+.messagepop {
+  position: fixed;
+  top: 100px;
+  left: 30%;
+  right: 30%;
+}
+
+.newFilePop {
+    background-color:#444444;
+    border:1px solid #999999;
+    color: #EEEEEE;
+    cursor:default;
+    display:none;
+    margin-top: 15px;
+    text-align:center;
+    width:40%;
+    z-index:50;
+    padding: 25px 25px 20px;
+    position: fixed;
+    top: 100px;
+    left: 30%;
+    right: 30%;
+}
+
+.newFilePop p, .newFilePop.div {
+    border-bottom: 1px solid #EFEFEF;
+    margin: 8px 0;
+    padding-bottom: 8px;
+}
+
+.close {
+   color: #000000;
+   text-decoration: none;
+   position: absolute;
+   right: 25px;
+   text-transform: uppercase;
+}
+
+.close:hover {
+    color: #300000;
+}
+
+a {
+  font: Arial;
+  text-decoration: none;
+  background-color: #EEEEEE;
+  color: #333333;
+  padding: 2px 6px 2px 6px;
+}
+
+a:visited {
+    color: #333333;
+}
+
+a:hover {
+    background-color: #CCCCEE;
+    border-bottom: 2px solid #00EE00;
+}
+
+a:active {
+    background-color: #CCCCEE;
+    border-bottom: 2px solid #00EE00;
+}
+
+.project_list_element {
+    background: url(resources/images/directory.png) left top no-repeat;
+    padding: 0px;
+    padding-left: 20px;
+}
+
+.editor_tab {
+    border: 1px solid #DDDDDD;
+    position: relative;
+    // top: 3px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: 12px;
+    width: fit-content;
+    display: inline-block;
+    padding-top: 0px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 0px;
+    height: 16px;
+}
+
+div.editor_tab img {
+    //position: relative;
+    //top: 0px;
+}
+
+div.editor_tab a {
+    position: relative;
+    height: 16px;
+    top: -4px;
+    background-color: rgba(255, 128, 0, 0);
+}
+
+.active_tab {
+    background: #8888FF;
+}
+
+.inactive_tab {
+    background: #AAAAAA;
+}
+
+.verifyFileSave, .confirmDeleteFile, .confirmDeleteProject{
+    background-color:#444444;
+    border:1px solid #999999;
+    color: #EEEEEE;
+    cursor:default;
+    display:none;
+    margin-top: 15px;
+    text-align:center;
+    width:40%;
+    z-index:50;
+    padding: 25px 25px 20px;
+    position: fixed;
+    top: 100px;
+    left: 30%;
+    right: 30%;
+}
+
+.verifyFileSave p, .verifyFileSave.div, .confirmDeleteFile p, .confirmDeleteFile.div, 
+confirmDeleteProject p, confirmDeleteProject.div {
+    border-bottom: 1px solid #EFEFEF;
+    margin: 8px 0;
+    padding-bottom: 8px;
+}
+
+.dirty_tab {
+    font-weight: bold;
+}
+
+.active_editor_container {
+    background: #555555;
+    background-image: url("resources/images/editor_background.png");
+    height:394px;
+    width:910px;
+    float:left;
+    padding:0px;
+}
+
+.inactive_editor_container {
+    display: none;
+    height:394px;
+    width:910px;
+    float:left;
+    padding:0px;
+}
+
+//Project actions are those that can only be performed from within an open project.
+.project_action {
+    
+}
+
+.project_action_inactive {
+    color: #BBAAAA !important;
+    //background-color: #FF00FF;
+}
+
+.project_action_inactive:hover {
+    border-bottom: 0px;
+}
+
+//File actions are those that can only be performed from within an open file.
+.file_action {
+    
+}
+
+.file_action_inactive {
+    color: #BBAAAA !important;
+}
+
+.file_action_inactive:hover {
+    border-bottom: 0px;
+}
+
+.menu_inactive {
+    display: none;
+}
+
+.menu_tab_active {
+    text-decoration: underline;
+}
+
+.menu_tab {
+    margin-left: 0px;
+    margin-right: 0px;
+    font-size: 16pt;
+    float:left;
+    border-left: 2px solid #888888;
+    border-right: 2px solid #888888;
+    padding-left: 50px;
+    padding-right: 50px;
+    margin-bottom: 2px;
+}
+
+.menu_tab:hover {
+    margin-bottom: 0px;
+}
+
+.taskbar_menu {
+    clear:left;
+    padding-top: 15px;
+}
+
+.options_inactive {
+    display:none;
+}
