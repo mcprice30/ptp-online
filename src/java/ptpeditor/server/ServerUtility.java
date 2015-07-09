@@ -18,7 +18,7 @@ public class ServerUtility {
      * system.
      * @return The operating system type this server is running.
      */
-    public static OS getOs() {
+    public static OS getOS() {
         
         String osName = System.getProperty("os.name");
         

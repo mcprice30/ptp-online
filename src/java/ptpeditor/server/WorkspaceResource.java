@@ -16,15 +16,28 @@ import javax.ws.rs.Path;
 @Path("workspace")
 public class WorkspaceResource {
 
-    /**
-     * Creates a new instance of WorkspaceResource
-     */
-    public WorkspaceResource() {
-    
-    }
 
+    /**
+     * Returns the absolute path to the workspace.
+     * @return The path.
+     */
     public static String getResourceBase() {
         return "C:\\Users/Mitch/Documents/PTPworkspace";
+    }
+    
+    /**
+     * Returns the absolute path to the workspace, specially formatted to 
+     * account for Cygwin's directory link (if applicable).
+     * @return The absolute path.
+     */
+    public static String getResourceBaseCygwin() {
+        if(ServerUtility.getOS() == ServerUtility.OS.WINDOWS) {
+            String base = getResourceBase();
+            //replacing "C:\\" with "/cygdrive/c/"
+            return "/cygdrive/c/" + base.substring(3, base.length());
+        } else {
+            return getResourceBase();
+        }
     }
     
     /**

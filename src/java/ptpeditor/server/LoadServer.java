@@ -140,7 +140,7 @@ public class LoadServer {
             case LOAD_KEY:
                 return performLoad(payload);
             case SAVE_KEY:
-                return performSave(payload, text);
+                return performSave(payload, text, projectName);
             case BUILD_KEY:
                 return performBuild(payload);
             case NEW_KEY:
@@ -183,14 +183,15 @@ public class LoadServer {
      * text to the file.
      * @param actionFile The absolute path of the file to save to.
      * @param text The text to save.
+     * @param projectName The name of the project.
      * @return A string to be logged to the console.
      */
-    public static String performSave(String actionFile, String text) {
+    public static String performSave(String actionFile, String text, String projectName) {
         try {
             PrintWriter out = new PrintWriter(actionFile);
             out.print(text);
             out.close();
-            return (SAVE_RESPONSE + "Saved!" + "\n" + syncFiles());
+            return (SAVE_RESPONSE + "Saved!" + "\n" + syncFiles(projectName));
         } catch (IOException e) {
             return SAVE_RESPONSE + "ERROR SAVING FILE";
         }
@@ -356,43 +357,10 @@ public class LoadServer {
     /**
      * Invokes rsync to synchronize files from the server to the target
      * supercomputer, as determined by the IP and username provided.
+     * @param projectName The name of the project.
      * @return 
      */
-    public static String syncFiles() {
-        try {
-            String[] commands = new String[3];
-            commands[0] = "C:\\cygwin64\\bin\\bash.exe";
-            commands[1] = "-c";
-            commands[2] = "printf";
-            
-            //String command = "C:\\cygwin64\\bin\\printf Hello";
-            
-            String command = "C:\\cygwin64\\bin\\rsync -avz -delete -e C:\\cygwin64\\bin\\ssh " +
-                    "/cygdrive/c/Users/Mitch/Documents/PTPworkspace/ACM "           
-                    + username + "@" + ip + ":workspace";                  
-
-            System.out.println(command);
-            Process p = Runtime.getRuntime().exec(command);
-            
-            
-            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader pError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            
-            String line;
-            String output = "";
-            while((line = in.readLine()) != null) {
-                //line = (char) in.read();
-                output += line + "\n";
-                System.out.println(line);
-            }            
-            while((line = pError.readLine()) != null) {
-                output += line + "\n";
-                System.out.println(line);
-            }
-            return output;
-        } catch (IOException e) {
-            System.out.println(e.toString());
-            return "COULD NOT SYNC!";
-        }
+    public static String syncFiles(String projectName) {
+        return FileSync.syncFiles(ip, username, password, projectName);
     }
 }
