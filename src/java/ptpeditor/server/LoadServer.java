@@ -19,9 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.File;
-import java.io.OutputStreamWriter;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -377,6 +374,12 @@ public class LoadServer {
         
     }
     
+    /**
+     * Upon being given a project name, reads the .settings.prop folder for the project
+     * and returns the contents.
+     * @param projectName The name of the active project.
+     * @return The contents of the project's .settings.prop folder.
+     */
     public static String performReadSettings(String projectName) {
         char delimiter = 187;
         String defaultResponse = "ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace";

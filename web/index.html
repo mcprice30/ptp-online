@@ -206,9 +206,12 @@
             matchBrackets: true,
             mode: "text/plain",
             theme: "ptp-default",
-            height: "auto"
+            height: "auto",
+            indentUnit: 4
         });
-        
+        CodeMirror.commands.save = function(cm) {
+          doSave();  
+        };
         //Sets the nav div to list the various projects.
         $(document).ready(function() {
             getWorkspaceBase();
