@@ -184,7 +184,7 @@ $(function() {
     });
     
     $("#closeCurrentProject").on("click", function() {
-       chainCloseAllTabs(); 
+       chainCloseAllTabs(false); 
     });
     
 });
@@ -367,16 +367,21 @@ function showProjectDirectory(projectName) {
 
 //This function begins the process of closing every open tab in a project, one
 //at a time.
-function chainCloseAllTabs() {
+function chainCloseAllTabs(logoutWhenDone) {
     if(tabList.length === 0) {
         listWorkspaceProjects();
+        if(logoutWhenDone) {
+            setTimeout(function(){
+                leaveSite();
+            }, 150);
+        }
     } else {
         var closePromise = beginCloseProcess();
         if(closePromise === undefined) {
-            chainCloseAllTabs();
+            chainCloseAllTabs(logoutWhenDone);
         } else {
             closePromise.done(function(data){
-                chainCloseAllTabs();
+                chainCloseAllTabs(logoutWhenDone);
             });
             closePromise.fail(function(data) {
                 return;
@@ -754,7 +759,7 @@ function deleteFile(fileName) {
 function deleteActiveProject() {
     webSocket.send("DELETE_PROJECT");
     setTimeout(function() {
-        chainCloseAllTabs();
+        chainCloseAllTabs(false);
     }, 750);
     
 }
@@ -901,3 +906,9 @@ function leaveSite() {
     $(".greetingLogin").removeClass("login_inactive");
     userName = "";
 }
+
+$(function(){
+    $(".exit_tab").on("click", function(){
+        chainCloseAllTabs(true);
+    });
+});

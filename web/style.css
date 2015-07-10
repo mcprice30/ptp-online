@@ -394,16 +394,23 @@ confirmDeleteProject p, confirmDeleteProject.div {
     text-decoration: underline;
 }
 
-.menu_tab {
+.menu_tab, .exit_tab {
     margin-left: 0px;
     margin-right: 0px;
     font-size: 16pt;
-    float:left;
     border-left: 2px solid #888888;
     border-right: 2px solid #888888;
     padding-left: 50px;
     padding-right: 50px;
     margin-bottom: 2px;
+}
+
+.menu_tab {
+    float: left;
+}
+
+.exit_tab {
+    float: right;
 }
 
 .menu_tab:hover {
