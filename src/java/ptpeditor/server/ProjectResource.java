@@ -21,7 +21,6 @@ import java.io.InputStreamReader;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 /**
@@ -31,16 +30,6 @@ import javax.ws.rs.Path;
  */
 @Path("project/{userId}")
 public class ProjectResource {
-
-
-    private String activeProject;
-    
-    /**
-     * Creates a new instance of NewProjectResource
-     */
-    public ProjectResource() {
-        activeProject = "";
-    }
 
     /**
      * Checks whether the project name is taken or not. If it is already taken,
@@ -115,22 +104,11 @@ public class ProjectResource {
                 output += line + "\n";
             }
         } catch (IOException e) {
+            System.out.println(e.toString());
             return "Error finding projects!";
         }
         
         return output;
     }
     
-    /**
-     *  DEPRECATED.
-     *  HTTP POST request server side component.
-     *  Sets the active project. This will return a string describing the 
-     *  success of the action.
-     *  @param projectName The name of the project to set active.
-     */
-    @POST
-    @Path("setactive/{projectName}")
-    public void getActiveProject(@PathParam("projectName")String projectName) {
-        activeProject = projectName;
-    }
 }

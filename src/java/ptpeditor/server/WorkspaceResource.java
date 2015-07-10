@@ -30,6 +30,7 @@ public class WorkspaceResource {
     /**
      * Returns the absolute path to the workspace, specially formatted to 
      * account for Cygwin's directory link (if applicable).
+     * @param userId The id assigned to the user.
      * @return The absolute path.
      */
     public static String getResourceBaseCygwin(String userId) {

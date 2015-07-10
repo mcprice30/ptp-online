@@ -24,10 +24,6 @@ var deferred;
 var workspaceBase = null;
 var userName;
 
-//Will be removed. Displays text in the options bar.
-function showRequest(text) {
-    //DO NOTHING;
-}
 
 //Gets the base string of the workspace location from a server-side GET.
 function getWorkspaceBase() {
@@ -46,40 +42,6 @@ function getWorkspaceBase() {
     new_uri += "/webresources/workspace/" + userName;
     xmlhttp.open("GET", new_uri , true);
     xmlhttp.send();
-}
-
-//Prompts the user for a file name, which is stored in the fileType and fileName
-//fields. This currently allows for only 1 file at a time.
-//DEPRECATED?
-function doSaveAs() {
-    var prompt = "Enter a file name.";
-    var valid = true, file;
-    do {
-        valid = true;
-        file = window.prompt(prompt);
-        var extPos = file.lastIndexOf(".");
-        if(extPos > 0 && extPos < file.length - 1) {
-            fileName = file.substring(0, extPos);
-            fileType = file.substring(extPos + 1, file.length);
-                    
-            if(fileType === "c") {
-                myCodeMirror.setOption("mode", "text/x-csrc");
-            } else if (fileType === "java") {
-                myCodeMirror.setOption("mode", "text/x-java");
-            } else if (fileType === "f90") {
-                myCodeMirror.setOption("mode", "text/x-Fortran");
-            } else if (fileType === "cpp") {
-                myCodeMirror.setOption("mode", "text/x-c++src");
-            } else {
-                myCodeMirror.setOption("mode", "text/plain");
-            }
-                    
-        } else {
-            prompt = "File name invalid! Please try again!";
-            valid = false;
-        }
-    } while(!valid);
-    //document.getElementById("editortabs").innerHTML = file;
 }
 
 //Prompts the user for a file name and creates the corresponding file. This is
@@ -112,12 +74,6 @@ function createFile(file, filePath) {
     openNewTab(activeFile);
 }
 
-//Sends the file via a websocket to the server-side to be saved.
-//This may need to be revisited for security/efficiency purposes.
-function doSave() {
-    saveFile();
-}
-
 //Adding the console to the bottom of the screen.
 $(document).ready(function(){
              /* Fifth console */
@@ -127,14 +83,11 @@ $(document).ready(function(){
         promptLabel: 'Console> ',
         commandHandle:function(line){
             if (line) {
-                showRequest(line);
                 return [{msg:"",className:"jquery-console-message-value"}];
             } else {
-                var m = "type a color among (" + this.colors.join(", ") + ")";
-                return [{msg:m,className:"jquery-console-message-value"}];
+                return [{msg:"",className:"jquery-console-message-value"}];
             }
         },
-        colors: ["red","blue","green","black","yellow","white","grey"],
         cols: 40,
         completeHandle:function(prefix){
             var colors = this.colors;
@@ -354,16 +307,6 @@ function showProjectDirectory(projectName) {
         activeFile = file;
         openNewTab(file);
     });
-    
-    var xmlhttp = new XMLHttpRequest();
-    var loc = window.location, new_uri;
-    new_uri = loc.protocol;
-    new_uri += "//" + loc.host;
-    new_uri += "/PTPEditor";
-    new_uri += "/webresources/project/" + userName + "/setactive/";
-    new_uri += projectName;
-    xmlhttp.open("POST", new_uri, true);
-    xmlhttp.send();
     
     openWebSocket(projectName);
     activeProject = projectName;
@@ -609,7 +552,7 @@ $(function(){
     });
     
     $("#confirmFileSave").on("click", function() {
-        doSave();
+        saveFile();
         setTimeout(closeActiveTab(), 3000);
         
         $(".verifyFileSave").slideFadeToggle();
@@ -786,7 +729,7 @@ $(function(){
 //Binding actions to the save and build buttons.
 $(function(){
     $("#save_file_trigger").on("click", function() {
-        doSave();
+        saveFile();
     });
     $("#build_file_trigger").on("click", function(){
         doBuild();
@@ -896,11 +839,10 @@ function enterSite() {
     getWorkspaceBase();
     setTimeout(function(){
         listWorkspaceProjects();
-    }, 1000);
-
-    
+    }, 1000); 
 }
 
+//Binding enter button to action.
 $(function() {
     $("#username_confirm_button").on("click", function(){
         if($("#username").val() !== "" && $("#username").val().search(/\W+/g) === -1) {
@@ -911,11 +853,13 @@ $(function() {
     });
 });
 
+//Logs the user out, and returns to the login page.
 function leaveSite() {
     $(".greetingLogin").removeClass("login_inactive");
     userName = "";
 }
 
+//Binding logout button.
 $(function(){
     $(".exit_tab").on("click", function(){
         chainCloseAllTabs(true);
