@@ -37,7 +37,7 @@ import javax.websocket.server.PathParam;
  * one project open at a time).
  * @author Mitch
  */
-@ServerEndpoint("/load/{projectName}")
+@ServerEndpoint("/load/{userId}/{projectName}")
 public class LoadServer {
     
     private static final String SAVE_KEY = "SAVE";
@@ -68,10 +68,11 @@ public class LoadServer {
      *  The onOpen message sends a message back to the client side once
      *  this endpoint of the Websocket is established.
      * @param session
+     * @param userId The id assigned to the user.
      * @param projectName 
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("projectName")String projectName) {
+    public void onOpen(Session session, @PathParam("userId")String userId, @PathParam("projectName")String projectName) {
         System.out.println(session.getId() + " has opened a connection"); 
         //System.out.println("Will save file: " + fileName + "." + fileType);
         try {
@@ -79,11 +80,11 @@ public class LoadServer {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        String initialSettings = performReadSettings(projectName);
+        String initialSettings = performReadSettings(projectName, userId);
         initialSettings = initialSettings.substring(1, initialSettings.length());
         char delimiter = 187;
         if(!initialSettings.equals("ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace")) {
-            performUpdateSettings(initialSettings, projectName);
+            performUpdateSettings(initialSettings, projectName, userId);
         }
     }
     
@@ -95,10 +96,11 @@ public class LoadServer {
      * response will begin with a single letter indicating the response type.
      * @param message
      * @param session
+     * @param userId
      * @param projectName 
      */
     @OnMessage
-    public void onMessage(String message, Session session, @PathParam("projectName")String projectName) {
+    public void onMessage(String message, Session session, @PathParam("userId")String userId, @PathParam("projectName")String projectName) {
         //Breaking up the message into the various components: an action type,
         //a file to perform the action on, and (if applicable), a text payload.
         String[] messageComponents = message.split(" ");
@@ -116,7 +118,7 @@ public class LoadServer {
         }
         
         try {
-            session.getBasicRemote().sendText(handleMessage(actionType, payload, text, projectName));
+            session.getBasicRemote().sendText(handleMessage(actionType, payload, text, userId, projectName));
         } catch (IOException ex) {
             System.out.println(ex.toString());
         }
@@ -125,11 +127,13 @@ public class LoadServer {
     /**
      * When the websocket is closed, log the event and session ID to the server.
      * @param session
+     * @param userId
      * @param projectName 
      */
     @OnClose
-    public void onClose(Session session, @PathParam("projectName")String projectName) {
+    public void onClose(Session session, @PathParam("userId")String userId, @PathParam("projectName")String projectName) {
         System.out.println("Session " + session.getId() + " has ended");
+        System.out.println("Project " + projectName + "for user: " + userId + "is closed.");
     }
     
     /**
@@ -138,15 +142,16 @@ public class LoadServer {
      * @param header The type of action to perform.
      * @param payload An action file, settings, etc.
      * @param text If saving a file, the text to save.
+     * @param userId The name of the user.
      * @param projectName The name of the project.
      * @return The server's response.
      */
-    public static String handleMessage(String header, String payload, String text, String projectName) {
+    public static String handleMessage(String header, String payload, String text, String userId, String projectName) {
         switch (header) {
             case LOAD_KEY:
                 return performLoad(payload);
             case SAVE_KEY:
-                return performSave(payload, text, projectName);
+                return performSave(payload, text, projectName, userId);
             case BUILD_KEY:
                 return performBuild(payload);
             case NEW_KEY:
@@ -154,11 +159,11 @@ public class LoadServer {
             case DELETE_KEY:
                 return performDelete(payload);
             case DELETE_PROJECT_KEY:
-                return performDeleteProject(projectName);
+                return performDeleteProject(projectName, userId);
             case SETTINGS_KEY:
-                return performUpdateSettings(payload, projectName);
+                return performUpdateSettings(payload, projectName, userId);
             case READ_SETTINGS_KEY:
-                return performReadSettings(projectName);
+                return performReadSettings(projectName, userId);
             default:
                 return ERROR_RESPONSE + "Unknown Action!";
         }
@@ -192,14 +197,15 @@ public class LoadServer {
      * @param actionFile The absolute path of the file to save to.
      * @param text The text to save.
      * @param projectName The name of the project.
+     * @param userId The id assigned to the user.
      * @return A string to be logged to the console.
      */
-    public static String performSave(String actionFile, String text, String projectName) {
+    public static String performSave(String actionFile, String text, String projectName, String userId) {
         try {
             PrintWriter out = new PrintWriter(actionFile);
             out.print(text);
             out.close();
-            return (SAVE_RESPONSE + "Saved!" + "\n" + syncFiles(projectName));
+            return (SAVE_RESPONSE + "Saved!" + "\n" + syncFiles(projectName, userId));
         } catch (IOException e) {
             return SAVE_RESPONSE + "ERROR SAVING FILE";
         }
@@ -303,11 +309,12 @@ public class LoadServer {
      * and all of its files / subdirectories from the workspace. If the project
      * is on a supercomputer, this does not occur.
      * @param projectName  The name of the project to delete.
+     * @param userId The id assigned to the user.
      * @return A statement indicating the success of the action.
      */
-    public static String performDeleteProject(String projectName) {
+    public static String performDeleteProject(String projectName, String userId) {
         String output = PROJECT_RESPONSE + projectName + " deleted.\n";
-        if (deleteDir(new File(WorkspaceResource.getResourceBase() + "/" + projectName))) {
+        if (deleteDir(new File(WorkspaceResource.getResourceBase(userId) + "/" + projectName))) {
             return output;
         } else {
             return PROJECT_RESPONSE + "Could not delete project!";
@@ -342,11 +349,12 @@ public class LoadServer {
      * data.
      * @param payload The settings to update, separated by a special delimiter.
      * @param projectName The name of the project being worked on.
+     * @param userId The id assigned to the user.
      * @return A message indicating the success of the action.
      */
-    public static String performUpdateSettings(String payload, String projectName) {
+    public static String performUpdateSettings(String payload, String projectName, String userId) {
         System.out.println(payload);
-        String propertiesFile = WorkspaceResource.getResourceBase() + "/" + projectName + "/.settings.prop";
+        String propertiesFile = WorkspaceResource.getResourceBase(userId) + "/" + projectName + "/.settings.prop";
         char delimiter = 187;
         String[] settingsList = payload.split((delimiter + ""));
         try {
@@ -378,13 +386,14 @@ public class LoadServer {
      * Upon being given a project name, reads the .settings.prop folder for the project
      * and returns the contents.
      * @param projectName The name of the active project.
+     * @param userId The id assigned to the user.
      * @return The contents of the project's .settings.prop folder.
      */
-    public static String performReadSettings(String projectName) {
+    public static String performReadSettings(String projectName, String userId) {
         char delimiter = 187;
         String defaultResponse = "ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace";
         String response;    //The response. (Begins with response key).
-        String propertiesFile = WorkspaceResource.getResourceBase() + "/" + projectName + "/.settings.prop";
+        String propertiesFile = WorkspaceResource.getResourceBase(userId) + "/" + projectName + "/.settings.prop";
         try {
             BufferedReader in = new BufferedReader(new FileReader(propertiesFile));
             response = in.readLine();
@@ -403,9 +412,10 @@ public class LoadServer {
      * Invokes rsync to synchronize files from the server to the target
      * supercomputer, as determined by the IP and username provided.
      * @param projectName The name of the project.
+     * @param userId The id assigned to the user.
      * @return 
      */
-    public static String syncFiles(String projectName) {
-        return FileSync.syncFiles(ip, username, password, directory, projectName);
+    public static String syncFiles(String projectName, String userId) {
+        return FileSync.syncFiles(ip, username, password, directory, projectName, userId);
     }
 }

@@ -13,6 +13,7 @@ package ptpeditor.server;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 //import java.nio.file.Path;
+import java.io.File;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,7 +29,7 @@ import javax.ws.rs.Path;
  *
  * @author Mitch
  */
-@Path("project")
+@Path("project/{userId}")
 public class ProjectResource {
 
 
@@ -47,16 +48,17 @@ public class ProjectResource {
      * the method attempts to create a directory for the project and responds
      * to the user with a response message.
      * @return an instance of java.lang.String
+     * @param userId The id assigned to the user.
      * @param projectID The id assigned to the project.
      * @param projectName The name of the project, and it's directory.
      */
     @GET
     @Path("create/{projectID}/{projectName}")
     @Produces("text/plain")
-    public String createProject(@PathParam("projectID")String projectID, @PathParam("projectName")String projectName) {
+    public String createProject(@PathParam("userId")String userId, @PathParam("projectID")String projectID, @PathParam("projectName")String projectName) {
         
-        String workspaceLocation = WorkspaceResource.getResourceBase(); 
-        String projectLocation = workspaceLocation + "\\" + projectName;
+        String workspaceLocation = WorkspaceResource.getResourceBase(userId); 
+        String projectLocation = workspaceLocation + "/" + projectName;
         
         
         java.nio.file.Path p = Paths.get(projectLocation);
@@ -64,27 +66,45 @@ public class ProjectResource {
         if(Files.exists(p)) {
             return "Project could not be created!\nA project with the same name already exists.";
         } else {
+            File dir = new File(projectLocation);
+            boolean success = dir.mkdirs();
+            if(success) {
+                return "Project Created!";
+            } else {
+                return "Project not Created!";
+            }
+            /*
             try {
-                Runtime.getRuntime().exec("mkdir " + projectLocation);
+               Process ps = Runtime.getRuntime().exec("mkdir " + "\"" +  projectLocation + "\"");
+               BufferedReader in = new BufferedReader(new InputStreamReader(ps.getInputStream()));
+               String line;
+               while((line = in.readLine()) != null) {
+                   System.out.println(line);
+               }
+               in = new BufferedReader(new InputStreamReader(ps.getErrorStream()));
+               while((line = in.readLine()) != null) {
+                   System.out.println(line);
+               } 
             } catch (IOException e) {
                 return "Error making project!";
             }  
-            return "Project Created!";
+            */
         }  
     }
 
     /**
      * HTTP GET request server side component.
      * Lists every project in the directory. Projects are separated by new lines.
+     * @param userId The id of the user.
      * @return The list of projects in the workspace.
      */
     @GET
     @Path("list")
     @Produces("text/plain")
-    public String getProjectList() {
+    public String getProjectList(@PathParam("userId")String userId) {
         String output = "";
         try {
-            String commandLocation = WorkspaceResource.getResourceBase() + "/*/";
+            String commandLocation = WorkspaceResource.getResourceBase(userId) + "/*/";
             Process p = Runtime.getRuntime().exec("ls -d " + commandLocation);
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
@@ -102,9 +122,11 @@ public class ProjectResource {
     }
     
     /**
+     *  DEPRECATED.
      *  HTTP POST request server side component.
      *  Sets the active project. This will return a string describing the 
      *  success of the action.
+     *  @param projectName The name of the project to set active.
      */
     @POST
     @Path("setactive/{projectName}")

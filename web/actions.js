@@ -26,7 +26,7 @@ var userName;
 
 //Will be removed. Displays text in the options bar.
 function showRequest(text) {
-    options.innerHTML =  text + "<br>";
+    //DO NOTHING;
 }
 
 //Gets the base string of the workspace location from a server-side GET.
@@ -43,13 +43,14 @@ function getWorkspaceBase() {
     new_uri = loc.protocol;
     new_uri += "//" + loc.host;
     new_uri += "/PTPEditor";
-    new_uri += "/webresources/workspace";
+    new_uri += "/webresources/workspace/" + userName;
     xmlhttp.open("GET", new_uri , true);
     xmlhttp.send();
 }
 
 //Prompts the user for a file name, which is stored in the fileType and fileName
 //fields. This currently allows for only 1 file at a time.
+//DEPRECATED?
 function doSaveAs() {
     var prompt = "Enter a file name.";
     var valid = true, file;
@@ -211,25 +212,30 @@ function createNewProject(ID, Name) {
     xmlhttp.onreadystatechange = function() {
         if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             controller5.report([{msg:"\t[NEW PROJECT]: \n" + xmlhttp.responseText,className:"jquery-console-message-value"}]); 
+            
+            if(xmlhttp.responseText === "Project Created!") {
+                setTimeout(function(){
+                    showProjectDirectory(Name);
+                }, 100);
+    
+                setTimeout(function(){
+                    displayProjectOptions();
+                }, 1500);
+            } else {
+                alert("invalid!");
+            }
         }
     };
     var loc = window.location, new_uri;
     new_uri = loc.protocol;
     new_uri += "//" + loc.host;
     new_uri += "/PTPEditor";
-    new_uri += "/webresources/project/create";
-    new_uri += "/" + ID;
+    new_uri += "/webresources/project/";
+    new_uri += userName + "/";
+    new_uri += "create/" + ID;
     new_uri += "/" + Name;
     xmlhttp.open("GET", new_uri , true);
     xmlhttp.send();
-    setTimeout(function(){
-        listWorkspaceProjects();
-    }, 100);
-    
-    setTimeout(function(){
-        displayProjectOptions();
-    }, 1500);
-    
 }
 
 //Deselects a popup.
@@ -323,7 +329,7 @@ function listWorkspaceProjects() {
     new_uri = loc.protocol;
     new_uri += "//" + loc.host;
     new_uri += "/PTPEditor";
-    new_uri += "/webresources/project/list";
+    new_uri += "/webresources/project/" + userName +"/list";
     xmlhttp.open("GET", new_uri , true);
     xmlhttp.send();
     closeWebSocket();
@@ -354,7 +360,7 @@ function showProjectDirectory(projectName) {
     new_uri = loc.protocol;
     new_uri += "//" + loc.host;
     new_uri += "/PTPEditor";
-    new_uri += "/webresources/project/setactive/";
+    new_uri += "/webresources/project/" + userName + "/setactive/";
     new_uri += projectName;
     xmlhttp.open("POST", new_uri, true);
     xmlhttp.send();
@@ -387,10 +393,6 @@ function chainCloseAllTabs(logoutWhenDone) {
                 return;
             });
         }
-        
-        
-        //closePromise();
-        
     }
 }
 
@@ -444,6 +446,7 @@ function openWebSocket(projectName) {
         new_uri += "//" + loc.host;
         new_uri += "/PTPEditor";
         new_uri += "/load";
+        new_uri += "/" + userName;
         new_uri += "/" + projectName;
         webSocket = new WebSocket(new_uri);
         webSocket.onopen = function(event){
@@ -890,6 +893,12 @@ $(function() {
 function enterSite() {
     $(".greetingLogin").addClass("login_inactive");
     userName = $("#username").val();
+    getWorkspaceBase();
+    setTimeout(function(){
+        listWorkspaceProjects();
+    }, 1000);
+
+    
 }
 
 $(function() {

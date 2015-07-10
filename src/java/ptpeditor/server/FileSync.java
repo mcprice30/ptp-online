@@ -22,19 +22,20 @@ public class FileSync {
      * @param password The password corresponding to the given username. 
      * @param directory The directory on the supercomputer to write to.
      * @param projectName The name of the project to sync.
+     * @param userId The id assigned to the user.
      * Currently, this field is unused.
      * @return A message pertaining to the outcome of the action.
      */
-    public static String syncFiles(String ip, String username, String password, String directory, String projectName) {
+    public static String syncFiles(String ip, String username, String password, String directory, String projectName, String userId) {
         if(ip == null || username == null) {
             return "[ERROR]: Server information not entered!";
         }
         
         ServerUtility.OS serverOS = ServerUtility.getOS();
         if(serverOS == ServerUtility.OS.WINDOWS) {
-            return syncFilesWindows(ip, username, password, directory, projectName);
+            return syncFilesWindows(ip, username, password, directory, projectName, userId);
         } else if (serverOS == ServerUtility.OS.UNIX) {
-            return syncFilesUnix(ip, username, password, directory, projectName);
+            return syncFilesUnix(ip, username, password, directory, projectName, userId);
         } else  {
             return "[ERROR]: Operating system not supported!";
         }
@@ -47,13 +48,14 @@ public class FileSync {
      * @param password The password corresponding to the given username.
      * @param directory The directory on the supercomputer to sync to.
      * @param projectName The name of the project to sync.
+     * @param userId The id assigned to the user.
      * Currently, this field is unused.
      * @return A message pertaining to the outcome of the action.
      */
-    public static String syncFilesWindows(String ip, String username, String password, String directory, String projectName){
+    public static String syncFilesWindows(String ip, String username, String password, String directory, String projectName, String userId){
         try {
             String command = "C:\\cygwin64\\bin\\rsync -avz --delete -e C:\\cygwin64\\bin\\ssh " +
-                    WorkspaceResource.getResourceBaseCygwin() + "/" + projectName + " "           
+                    WorkspaceResource.getResourceBaseCygwin(userId) + "/" + projectName + " "           
                     + username + "@" + ip + ":" + directory;                  
 
             System.out.println(command);
@@ -88,13 +90,14 @@ public class FileSync {
      * @param password The password corresponding to the given username.
      * @param directory The directory to sync to on the supercomputer.
      * @param projectName The name of the project to sync.
+     * @param userId The id assigned to the user.
      * Currently, this field is unused.
      * @return A message pertaining to the outcome of the action.
      */
-    public static String syncFilesUnix(String ip, String username, String password, String directory, String projectName) {
+    public static String syncFilesUnix(String ip, String username, String password, String directory, String projectName, String userId) {
         try {
             String command = "rsync -avz --delete -e ssh " +
-                    WorkspaceResource.getResourceBaseCygwin() + "/" + projectName + " "           
+                    WorkspaceResource.getResourceBaseCygwin(userId) + "/" + projectName + " "           
                     + username + "@" + ip + ":" + directory;                  
 
             System.out.println(command);
