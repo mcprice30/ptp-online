@@ -49,6 +49,7 @@ public class LoadServer {
     private static final String DELETE_PROJECT_KEY = "DELETE_PROJECT";
     private static final String SETTINGS_KEY = "SETTINGS";
     private static final String READ_SETTINGS_KEY = "READ_SETTINGS";
+    private static final String SYNC_KEY = "SYNC";
     
     private static final String SAVE_RESPONSE = "S";
     private static final String LOAD_RESPONSE = "L";
@@ -59,6 +60,7 @@ public class LoadServer {
     private static final String SETTINGS_RESPONSE = "G";
     private static final String ERROR_RESPONSE = "E";
     private static final String READ_SETTINGS_RESPONSE = "R";
+    private static final String SYNC_RESPONSE = "Y";
     
     private static String ip = null;
     private static String username = null;
@@ -165,6 +167,8 @@ public class LoadServer {
                 return performUpdateSettings(payload, projectName, userId);
             case READ_SETTINGS_KEY:
                 return performReadSettings(projectName, userId);
+            case SYNC_KEY:
+                return syncFiles(projectName, userId);
             default:
                 return ERROR_RESPONSE + "Unknown Action!";
         }
@@ -206,7 +210,7 @@ public class LoadServer {
             PrintWriter out = new PrintWriter(actionFile);
             out.print(text);
             out.close();
-            return (SAVE_RESPONSE + "Saved!" + "\n" + syncFiles(projectName, userId));
+            return (SAVE_RESPONSE + "Saved!");
         } catch (IOException e) {
             return SAVE_RESPONSE + "ERROR SAVING FILE";
         }
@@ -235,7 +239,7 @@ public class LoadServer {
                     return BUILD_RESPONSE + output;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.toString());
                 return BUILD_RESPONSE + "An error occurred!";
             }
         } else {
@@ -268,7 +272,7 @@ public class LoadServer {
            }
         } catch (IOException e) {
             String output = NEW_RESPONSE + "Error creating file! " + e.toString();
-            e.printStackTrace();
+            System.out.println(e.toString());
             if(!dirSucceed) {
                 output += " Could not create necessary directories!";
             }
@@ -417,6 +421,6 @@ public class LoadServer {
      * @return 
      */
     public static String syncFiles(String projectName, String userId) {
-        return FileSync.syncFiles(ip, username, password, directory, projectName, userId);
+        return SYNC_RESPONSE + FileSync.syncFiles(ip, username, password, directory, projectName, userId);
     }
 }

@@ -433,6 +433,8 @@ function openWebSocket(projectName) {
                 $("#TargetUsername").val(options[1]);
                 $("#TargetPassword").val(options[2]);
                 $("#TargetDirectory").val(options[3]);
+            } else if (responseType === "Y") {
+                controller5.report([{msg:"[FILE TRANSFER]: --Report--\n" + response, className:"jquery-console-message-value"}]);
             } else {
                 controller5.report([{msg:"[ERROR]: Could not resolve server response!", className:"jquery-console-message-value"}]);
             }  
@@ -863,5 +865,17 @@ function leaveSite() {
 $(function(){
     $(".exit_tab").on("click", function(){
         chainCloseAllTabs(true);
+    });
+});
+
+//syncronize project
+function syncProject() {
+    controller5.report([{msg: "[FILE TRANSFER]: Beginning Transfer", className: "jquery-console-message-value"}]);
+    webSocket.send("SYNC");
+}
+
+$(function(){
+    $("#sync_project_trigger").on("click", function(){
+        syncProject();
     });
 });
