@@ -34,7 +34,6 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(ptpeditor.server.BuildResource.class);
         resources.add(ptpeditor.server.ProjectResource.class);
         resources.add(ptpeditor.server.WorkspaceResource.class);
     }

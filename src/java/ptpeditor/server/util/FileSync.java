@@ -2,11 +2,12 @@
  * Here comes the text of your license
  * Each line should be prefixed with  * 
  */
-package ptpeditor.server;
+package ptpeditor.server.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import ptpeditor.server.WorkspaceResource;
 
 /**
  * This class is used specifically for syncing files from the server to the

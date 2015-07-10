@@ -12,6 +12,7 @@
  */
 package ptpeditor.server;
 
+import ptpeditor.server.util.FileSync;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;

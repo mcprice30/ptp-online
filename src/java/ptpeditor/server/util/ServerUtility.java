@@ -2,7 +2,7 @@
  * Here comes the text of your license
  * Each line should be prefixed with  * 
  */
-package ptpeditor.server;
+package ptpeditor.server.util;
 
 /**
  * The ServerUtility class is designed to hold various helper methods for the
