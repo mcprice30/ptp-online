@@ -225,6 +225,10 @@ function createNewProject(ID, Name) {
         listWorkspaceProjects();
     }, 100);
     
+    setTimeout(function(){
+        displayProjectOptions();
+    }, 1500);
+    
 }
 
 //Deselects a popup.
@@ -358,11 +362,6 @@ function showProjectDirectory(projectName) {
     activeProject = projectName;
     $(".project_action").css( 'pointer-events', 'auto' );
     $(".project_action").removeClass("project_action_inactive");
-    
-    setTimeout(function(){
-        displayProjectOptions();
-    }, 1500);
-    
 }
 
 //This function begins the process of closing every open tab in a project, one
@@ -837,6 +836,15 @@ function updateEditorOptions() {
     var selectionBox = document.getElementById("editor_theme_box");
     var chosenTheme = selectionBox.options[selectionBox.selectedIndex].value;
     myCodeMirror.setOption("theme", chosenTheme);
+    
+    if(isNaN(Number($("#tabWidthOption").val()))) {
+        $("#tabWidthOption").val("4");
+    }
+    
+    myCodeMirror.setOption("tabSize", Number($("#tabWidthOption").val()));
+    myCodeMirror.setOption("indentUnit", Number($("#tabWidthOption").val()));
+    myCodeMirror.setOption("smartIndent", document.getElementById("smartIndentOption").checked);
+    myCodeMirror.setOption("lineNumbers", document.getElementById("lineNumbersOption").checked);
 }
 
 //Binding the save editor options button the updateEditorOptions function.
