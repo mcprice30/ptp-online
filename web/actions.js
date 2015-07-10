@@ -22,6 +22,7 @@ var tabList = [];
 var activeTab;
 var deferred;
 var workspaceBase = null;
+var userName;
 
 //Will be removed. Displays text in the options bar.
 function showRequest(text) {
@@ -879,3 +880,24 @@ $(function() {
         updateProjectOptions();
     });
 });
+
+//Enter the site.
+function enterSite() {
+    $(".greetingLogin").addClass("login_inactive");
+    userName = $("#username").val();
+}
+
+$(function() {
+    $("#username_confirm_button").on("click", function(){
+        if($("#username").val() !== "" && $("#username").val().search(/\W+/g) === -1) {
+            enterSite();
+        } else {
+            alert("Invalid Username!");
+        }
+    });
+});
+
+function leaveSite() {
+    $(".greetingLogin").removeClass("login_inactive");
+    userName = "";
+}

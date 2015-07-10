@@ -415,6 +415,29 @@ confirmDeleteProject p, confirmDeleteProject.div {
     padding-top: 15px;
 }
 
-.options_inactive {
+.options_inactive, .login_inactive {
     display:none;
+}
+
+.greetingLogin {
+    float: left;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    z-index: 99;
+    background-color: #444444;
+}
+
+#user_login_form_div {
+    position: absolute;
+    width: 20%;
+    height: 20%;
+    top: 40%;
+    bottom: 40%;
+    left: 40%;
+    right: 40%;
+    text-align: center;
+    color: #EEEEEE;
 }
