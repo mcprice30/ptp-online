@@ -12,6 +12,8 @@
  */
 package ptpeditor.server;
 
+import static ptpeditor.server.util.Constants.*;
+
 import ptpeditor.server.util.FileSync;
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -40,27 +42,6 @@ import javax.websocket.server.PathParam;
  */
 @ServerEndpoint("/load/{userId}/{projectName}")
 public class LoadServer {
-    
-    private static final String SAVE_KEY = "SAVE";
-    private static final String LOAD_KEY = "LOAD";
-    private static final String BUILD_KEY = "BUILD";
-    private static final String NEW_KEY = "NEW";
-    private static final String DELETE_KEY = "DELETE";
-    private static final String DELETE_PROJECT_KEY = "DELETE_PROJECT";
-    private static final String SETTINGS_KEY = "SETTINGS";
-    private static final String READ_SETTINGS_KEY = "READ_SETTINGS";
-    private static final String SYNC_KEY = "SYNC";
-    
-    private static final String SAVE_RESPONSE = "S";
-    private static final String LOAD_RESPONSE = "L";
-    private static final String BUILD_RESPONSE = "B";
-    private static final String NEW_RESPONSE = "N";
-    private static final String DELETE_RESPONSE = "D";
-    private static final String PROJECT_RESPONSE = "P";
-    private static final String SETTINGS_RESPONSE = "G";
-    private static final String ERROR_RESPONSE = "E";
-    private static final String READ_SETTINGS_RESPONSE = "R";
-    private static final String SYNC_RESPONSE = "Y";
     
     private static String ip = null;
     private static String username = null;
