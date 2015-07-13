@@ -431,7 +431,11 @@ function openWebSocket(projectName) {
                 var options = response.split('\u00BB');
                 $("#TargetIP").val(options[0]);
                 $("#TargetUsername").val(options[1]);
-                $("#TargetPassword").val(options[2]);
+                if (options[2] === "NO_PASSWORD_ENTERED") {
+                    $("#TargetPassword").val("");
+                } else {
+                    $("#TargetPassword").val(options[2]);
+                }
                 $("#TargetDirectory").val(options[3]);
             } else if (responseType === "Y") {
                 controller5.report([{msg:"[FILE TRANSFER]: --Report--\n" + response, className:"jquery-console-message-value"}]);

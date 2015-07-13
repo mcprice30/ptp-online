@@ -30,6 +30,9 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.PathParam;
 
+import ptpeditor.server.jsch.ServerInfo;
+import ptpeditor.server.jsch.JschUtil;
+
 /**
  * The LoadServer will eventually take over entirely for the SaveServer
  * as the primary server websocket endpoint. Its purpose is to add save/load
@@ -349,7 +352,9 @@ public class LoadServer {
             password = settingsList[2];
             directory = settingsList[3];
             
-            String output = SETTINGS_RESPONSE + "Settings updated successfully!";
+            ServerInfo info = new ServerInfo(username, ip, password, userId + "'s server for " + projectName);
+            JschUtil.registerWithServer(info);
+            //String output = SETTINGS_RESPONSE + "Settings updated successfully!";
             //  output += "\nIP: " + ip;
             // output += "\nUsername: " + username;
             // output += "\nPassword: " + password;

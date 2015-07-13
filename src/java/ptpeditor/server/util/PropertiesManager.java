@@ -13,7 +13,7 @@ import java.io.FileReader;
  *
  * @author Mitch
  */
-public class Properties {
+public class PropertiesManager {
     private static String workspaceLocation = null;
     private static String sshLocation = null;
     private static boolean propsRead = false;

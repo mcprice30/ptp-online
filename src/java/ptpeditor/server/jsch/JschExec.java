@@ -58,6 +58,22 @@ public class JschExec {
         return this;
     }
     
+        /**
+     * Connects to the remote server.
+     * @return
+     * @throws Exception 
+     */
+    public JschExec connectNoPw() throws Exception {
+        jsch.addIdentity(JschUtil.sshDirectory() + "/id_dsa");
+        System.out.println("connecting to " + name);
+        session = jsch.getSession(userName, host);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.setPassword("");
+        session.connect();
+        channelExec = (ChannelExec) session.openChannel("exec");
+        System.out.println("connected to " + name);
+        return this;
+    }
     /**
      * Given a single command, executes the command.
      * @param command The command to execute.

@@ -10,6 +10,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import ptpeditor.server.util.PropertiesManager;
+
 /**
  * REST Web Service
  *
@@ -25,7 +27,7 @@ public class WorkspaceResource {
      * @return The path.
      */
     public static String getResourceBase(String userId) {
-        return ptpeditor.server.util.Properties.workspaceLocation() + "/" + userId;
+        return PropertiesManager.workspaceLocation() + "/" + userId;
         //return "C:\\Users/Mitch/Documents/PTPworkspace/" + userId;
     }
     
