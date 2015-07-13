@@ -25,7 +25,8 @@ public class WorkspaceResource {
      * @return The path.
      */
     public static String getResourceBase(String userId) {
-        return "C:\\Users/Mitch/Documents/PTPworkspace/" + userId;
+        return ptpeditor.server.util.Properties.workspaceLocation() + "/" + userId;
+        //return "C:\\Users/Mitch/Documents/PTPworkspace/" + userId;
     }
     
     /**
