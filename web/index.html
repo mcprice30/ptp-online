@@ -154,7 +154,7 @@
     <!--    This div holds the pop-up
             for creating a new project.
     -->
-    <div class="messagepop pop">
+    <div class="messagepop pop popup">
         <form method="post" id="new_message" action="#">
             <p><label for="ProjectName">Project Name</label><input type="text" size="30" name="ProjectName" id="ProjectName"></p>
             <p><label for="ProjectID">Project ID</label><input type="text" size="30" name="ProjectID" id="ProjectID"></p>
@@ -162,7 +162,7 @@
         </form>
     </div>
     
-    <div class="newFilePop">
+    <div class="newFilePop popup">
         <form method="post" id="new_file_message" action="#">
             <p><label for="FileName">File Name</label><input type="text" size="30" name="FileName" id="FileName"></p>
             <p><label for="FilePath">File Path</label><input type="text" size="30" name="FilePath" id="FilePath"></p>
@@ -170,7 +170,7 @@
         </form>
     </div>
     
-    <div class="verifyFileSave">
+    <div class="verifyFileSave popup">
         <form method="post" id="verify_save_message" action="#">
             <p>File is not saved! Would you like to save before closing the file?</p>
             <p>
@@ -181,7 +181,7 @@
         </form>
     </div>
     
-    <div class="confirmDeleteFile">
+    <div class="confirmDeleteFile popup">
         <form method="post" id="confirm_delete_save_message" action="#">
             <p>Are you sure you would like to delete this? This cannot be undone.</p>
             <p>(Any folders will have all of their contents deleted as well)</p>
@@ -192,7 +192,7 @@
         </form>
     </div>
     
-    <div class="confirmDeleteProject"> 
+    <div class="confirmDeleteProject popup"> 
         <form method="post" id="confirm_delete_project_message" action="#">
             <p>Are you sure you would like to delete the project and all its files?</p>
             <p>

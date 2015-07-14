@@ -68,7 +68,11 @@ span.jquery-console-prompt-label {
     height: 100%;
     font-family: "Consolas", Courier, monospace;
 }
-      
+
+.greetingLogin {
+    font-family: "Segoe UI";
+}
+
 #taskbar {
     background-color:#444444;
     height:75px;
@@ -427,6 +431,7 @@ confirmDeleteProject p, confirmDeleteProject.div {
     margin-left: 15px;
     top: 10px;
     height: 25px;
+    border-radius: 5px;
 }
 
 .taskbar_menu img:hover {
@@ -440,8 +445,8 @@ confirmDeleteProject p, confirmDeleteProject.div {
 }
 
 .project_action_inactive img, .file_action_inactive img, .non_project_action_inactive img {
-    opacity: 0.4;
-    filter: alpha(opacity=40); /* msie */
+    opacity: 0.15;
+    filter: alpha(opacity=15); /* msie */
 }
 
 .options_inactive, .login_inactive {
@@ -490,3 +495,6 @@ confirmDeleteProject p, confirmDeleteProject.div {
     width: 120px;
 }
 
+.popup {
+    font-family: "Segoe UI";
+}
