@@ -147,7 +147,17 @@ $(function() {
 $(function(){
     bindPopup($('#new_file_trigger'), $('.newFilePop'));
     $("#FileName").on("blur", function() {
-        $("#FileName").val($("#FileName").val().replace(/\s/g, ""));
+        $("#FileName").val($("#FileName").val().replace(/[^0-9a-zA-Z\._]/g, ""));
+    });
+    
+    $("#FilePath").on("blur", function() {
+        $("#FilePath").val($("#FilePath").val().replace(/[^0-9a-zA-Z\._\/]/g, ""));
+        do {
+            var oldString = $("#FilePath").val();
+            $("#FilePath").val($("#FilePath").val().replace(/(\.\.)/g, "."));
+        } while(oldString !== $("#FilePath").val());
+        
+        $("#FilePath").val($("#FilePath").val().replace(/(\.\.)/g, "."));
     });
     
     $("#createNewFile").on("click", function() {
