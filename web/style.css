@@ -360,16 +360,16 @@ confirmDeleteProject p, confirmDeleteProject.div {
 }
 
 //Project actions are those that can only be performed from within an open project.
-.project_action {
+.project_action, .non_project_action {
     
 }
 
-.project_action_inactive {
+.project_action_inactive, .non_project_action_inactive {
     color: #BBAAAA !important;
     //background-color: #FF00FF;
 }
 
-.project_action_inactive:hover {
+.project_action_inactive:hover, .non_project_action_inactive:hover {
     border-bottom: 0px;
 }
 

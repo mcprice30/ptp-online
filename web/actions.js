@@ -290,6 +290,9 @@ function listWorkspaceProjects() {
     myCodeMirror.setOption("value", "");
     numTabsOpened = 0;
     
+    $(".non_project_action").css( 'pointer-events', 'auto' );
+    $(".non_project_action").removeClass("non_project_action_inactive");
+    
     $(".project_action").css( 'pointer-events', 'none' );
     $(".project_action").addClass("project_action_inactive");
     displayEditorOptions();
@@ -310,6 +313,9 @@ function showProjectDirectory(projectName) {
     
     openWebSocket(projectName);
     activeProject = projectName;
+    $(".non_project_action").css( 'pointer-events', 'none' );
+    $(".non_project_action").addClass("non_project_action_inactive");
+    
     $(".project_action").css( 'pointer-events', 'auto' );
     $(".project_action").removeClass("project_action_inactive");
 }
