@@ -137,10 +137,6 @@ $(function() {
         createNewProject($("#ProjectID").val(), $("#ProjectName").val());
     });
     
-    $("#closeCurrentProject").on("click", function() {
-       chainCloseAllTabs(false); 
-    });
-    
 });
 
 //Binding and adding functionaliy to the new file creation popup.
@@ -311,7 +307,9 @@ function listWorkspaceProjects() {
 //This uses the jquery file tree project to display the file contents of a
 //particular project. This function is the primary one called to open a project.
 function showProjectDirectory(projectName) {
-    $("#fileTree_header").html("<h4>" + projectName + "<h4>");
+    var headerHtml = "<p><span>" + projectName + "</span>";
+    headerHtml += "<a href='#' id='closeCurrentProject' class='project_action'><img alt='Close Project' src='resources/images/CLOSE_X.png'</a></p>";
+    $("#fileTree_header").html(headerHtml);
     //alert("C:\\Users\\Mitch\\Documents\\PTPworkspace\\" + projectName);
     $("#fileTree_container").fileTree({root: workspaceBase + "/" + projectName,
                                        script: "resources/connectors/jqueryFileTree.jsp"},
@@ -319,6 +317,11 @@ function showProjectDirectory(projectName) {
         //openFile(file);
         activeFile = file;
         openNewTab(file);
+    });
+    
+    $("#closeCurrentProject").off("click");
+    $("#closeCurrentProject").on("click", function() {
+       chainCloseAllTabs(false); 
     });
     
     openWebSocket(projectName);

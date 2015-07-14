@@ -498,3 +498,17 @@ confirmDeleteProject p, confirmDeleteProject.div {
 .popup {
     font-family: "Segoe UI";
 }
+
+#fileTree_header span {
+    display: inline-block;
+    position: relative;
+    top: 0px;
+    vertical-align: middle;
+    margin-bottom: 7px;
+    margin-left: 20px;
+}
+
+#fileTree_header a{
+    display: inline-block;
+    margin-left: 20px;
+}
