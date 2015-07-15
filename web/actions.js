@@ -918,6 +918,10 @@ $(function(){
     $("#sync_project_trigger").on("click", function(){
         syncProject();
     });
+    
+    $("#run_project_trigger").on("click", function() {
+        alert("Not yet supported!");
+    });
 });
 
 $(function(){
