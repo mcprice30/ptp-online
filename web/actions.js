@@ -24,7 +24,6 @@ var deferred;
 var workspaceBase = null;
 var userName;
 
-
 //Gets the base string of the workspace location from a server-side GET.
 function getWorkspaceBase() {
     var xmlhttp = new XMLHttpRequest();
@@ -109,7 +108,6 @@ function doBuild() {
     controller5.report([{msg:"[BUILD]: Preparing to build: " + activeProject, className:"jquery-console-message-value"}]);
     webSocket.send("BUILD");
 }
-
 
 //This function takes a projectID and Name and sends a get request to the
 //ProjectResource server-side component. It then prints the response out to the console.

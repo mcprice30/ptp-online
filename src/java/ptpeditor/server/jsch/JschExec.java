@@ -17,7 +17,9 @@ import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 /**
- *
+ * The JschExec class is a means of sending commands to the remote server. It
+ * allows you to connect/disconnect, execute a command, and stop command execution,
+ * as well as write text to an ongoing command.
  * @author Mitch
  */
 public class JschExec {
@@ -32,7 +34,10 @@ public class JschExec {
     private final String password;
     private final String name;
     
-    
+    /**
+     * Constructor for JschExec.
+     * @param info The server you are connecting to's information.
+     */
     public JschExec (ServerInfo info) {
         this.userName = info.userName();
         this.host = info.host();
@@ -42,11 +47,11 @@ public class JschExec {
     }
     
     /**
-     * Connects to the remote server.
-     * @return
-     * @throws Exception 
+     * Connects to the remote server, using either a keypair or a password.
+     * @return A JschExec instance that is connected to the remote computer.
+     * @throws JSchException Thrown if error connecting. 
      */
-    public JschExec connect() throws Exception {
+    public JschExec connect() throws JSchException {
         jsch.addIdentity(JschUtil.sshDirectory() + "/id_dsa");
         System.out.println("connecting to " + name);
         session = jsch.getSession(userName, host);
@@ -59,11 +64,12 @@ public class JschExec {
     }
     
     /**
-     * Connects to the remote server.
-     * @return
-     * @throws Exception 
+     * Connects to the remote server using only an SSH keypair. No password is
+     * used.
+     * @return a JschExec instance that has connected to the remote computer.
+     * @throws JSchException Thrown if error connecting. 
      */
-    public JschExec connectNoPw() throws Exception {
+    public JschExec connectNoPw() throws JSchException {
         jsch.addIdentity(JschUtil.sshDirectory() + "/id_dsa");
         System.out.println("connecting to " + name);
         session = jsch.getSession(userName, host);
@@ -74,9 +80,11 @@ public class JschExec {
         System.out.println("connected to " + name);
         return this;
     }
+    
     /**
      * Given a single command, executes the command.
      * @param command The command to execute.
+     * @param willWrite True if this process will be written to later, false otherwise.
      * @throws IOException
      * @throws JSchException Thrown if error connecting.
      * @return The command line's output.
@@ -116,6 +124,12 @@ public class JschExec {
         return output;
     }
     
+    /**
+     * Takes a message and writes it to the channel's execution process.
+     * @param message The text to write to the file.
+     * @throws IOException Thrown in the event of being unable to locate or write to
+     * the necessary stream.
+     */
     public void enterTextAndClose(String message) throws IOException {
         System.out.println("Writing!");
         OutputStream writeStream = channelExec.getOutputStream();
@@ -127,13 +141,22 @@ public class JschExec {
         writer.close();
     }
     
+    /**
+     * Halts execution for this JschExec instance.
+     * @return An instance of JschExec with halted execution.
+     */
     public JschExec stop(){
         this.flag = false;
         System.out.println("execution stopped");
         return this;
     }
 
-    public JschExec disconnect() throws Exception {
+    /**
+     * Disconnects this JschExec's channel.
+     * @return An instance of JschExec that has been disconnected.
+     * @throws JSchException
+     */
+    public JschExec disconnect() throws JSchException {
         int exitCode = channelExec.getExitStatus();
         System.out.println("Ending with exit code " + exitCode);
         if (channelExec != null) channelExec.disconnect();
@@ -142,6 +165,10 @@ public class JschExec {
         return this;
     }
     
+    /**
+     * Gets the name of this Jsch Instance.
+     * @return The name of the server info passed in.
+     */
     public String name() {
         return this.name;
     }

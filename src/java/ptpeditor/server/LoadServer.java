@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.File;
 
@@ -204,7 +203,7 @@ public class LoadServer {
     
     /**
      * Calls javac on all java files this method is called on. 
-     * @param actionFile The absolute path of the file to compile.
+     * @param projectName The name of the project that is being built.
      * @return Any compilation errors, or new of a successful build.
      */ 
     public static String performBuild(String projectName) {

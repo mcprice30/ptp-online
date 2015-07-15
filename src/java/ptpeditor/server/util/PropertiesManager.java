@@ -8,7 +8,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.FileReader;
 /**
- *
+ * This class is used to access the properties within the Glassfish install folder's
+ * properties.txt folder.
  * @author Mitch
  */
 public class PropertiesManager {
@@ -43,6 +44,10 @@ public class PropertiesManager {
         return lineText.substring(lineText.indexOf(" ") + 1, lineText.length());
     }
     
+    /**
+     * Retrieves the location of the workspace on this computer.
+     * @return The location of the workpace.
+     */
     public static String workspaceLocation() {
         if(!propsRead) {
             readPropertiesFile();
@@ -50,7 +55,11 @@ public class PropertiesManager {
         return workspaceLocation;
     }
     
-        public static String sshLocation() {
+    /**
+     * Retrieves the directory containing the SSH keypair to be used.
+     * @return The .ssh directory's location.
+     */
+    public static String sshLocation() {
         if(!propsRead) {
             readPropertiesFile();
         }
