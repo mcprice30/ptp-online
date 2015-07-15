@@ -110,59 +110,6 @@ function doBuild() {
     webSocket.send("BUILD");
 }
 
-//Performing automatic function calls
-$(function() {
-    bindPopup($('#contact'), $('.pop'));
-    $("#ProjectName").on("blur", function() {
-        $("#ProjectID").val( function() { 
-            //var projectID = $("#ProjectName").val().replace(/\W+/g, '-').toLowerCase());
-            var idFromName = $("#ProjectName").val().replace(/\W+/g, '-').toLowerCase();
-            if(idFromName.indexOf("-") === 0) {
-                idFromName = idFromName.substring(1, idFromName.length-1);
-            }
-            
-            if(idFromName.lastIndexOf("-") === idFromName.length - 1) {
-                idFromName = idFromName.substring(0, idFromName.length-1);
-            }
-            return idFromName;
-        });
-        
-        $("#ProjectName").val($("#ProjectName").val().replace(/\W+/g, ""));
-    });
-    
-    $("#createNewProject").on("click", function() {
-        //Close the current popup.
-        deselect($('#contact'), $('.pop'));
-        //Create a new project directory.
-        createNewProject($("#ProjectID").val(), $("#ProjectName").val());
-    });
-    
-});
-
-//Binding and adding functionaliy to the new file creation popup.
-$(function(){
-    bindPopup($('#new_file_trigger'), $('.newFilePop'));
-    $("#FileName").on("blur", function() {
-        $("#FileName").val($("#FileName").val().replace(/[^0-9a-zA-Z\._]/g, ""));
-    });
-    
-    $("#FilePath").on("blur", function() {
-        $("#FilePath").val($("#FilePath").val().replace(/[^0-9a-zA-Z\._\/]/g, ""));
-        do {
-            var oldString = $("#FilePath").val();
-            $("#FilePath").val($("#FilePath").val().replace(/(\.\.)/g, "."));
-        } while(oldString !== $("#FilePath").val());
-        
-        $("#FilePath").val($("#FilePath").val().replace(/(\.\.)/g, "."));
-    });
-    
-    $("#createNewFile").on("click", function() {
-        //Close the current popup.
-        deselect($('#new_file_trigger'), $('.newFilePop'));
-        //Create a new project directory.
-        createFile($("#FileName").val(), $("#FilePath").val());
-    });   
-});
 
 //This function takes a projectID and Name and sends a get request to the
 //ProjectResource server-side component. It then prints the response out to the console.
@@ -577,32 +524,6 @@ function beginCloseProcess() {
     }
 }
 
-//Binding events to the action buttons in the save confirmation popup.
-$(function(){
-    $("#closeCurrentTab").on("click", function(){
-        beginCloseProcess();
-    });
-    
-    $("#confirmFileSave").on("click", function() {
-        saveFile();
-        setTimeout(closeActiveTab(), 3000);
-        
-        $(".verifyFileSave").slideFadeToggle();
-        deferred.resolve("File saved.");
-    });
-    
-    $("#dontDoFileSave").on("click", function() {
-        closeActiveTab();
-        $(".verifyFileSave").slideFadeToggle();
-        deferred.resolve("File not saved.");
-    });
-    
-    $("#cancelFileClose").on("click", function() {
-        $(".verifyFileSave").slideFadeToggle();
-        deferred.reject("Process canceled");
-    });
-});
-
 //Binding events to the action buttons in the file deletion confirmation popup.
 $(function(){
    
@@ -749,23 +670,9 @@ $(function(){
    
    $("#confirmDeleteProject").on("click", function(){
        controller5.report([{msg:"Preparing to delete: " + activeProject, className:"jquery-console-message-value"}]);
-       //var fileToDelete = activeFile;
-       //closeActiveTab();
-       //deleteFile(fileToDelete);
        deleteActiveProject();
        deselect($("#deleteCurrentProject"), $(".confirmDeleteProject"));
    });
-});
-
-
-//Binding actions to the save and build buttons.
-$(function(){
-    $("#save_file_trigger").on("click", function() {
-        saveFile();
-    });
-    $("#build_project_trigger").on("click", function(){
-        doBuild();
-    });
 });
 
 //Binding the File, Build, and Options menu tab buttons to their respective
@@ -804,17 +711,6 @@ function displayEditorOptions() {
     $("#editor_options").removeClass("options_inactive");
 }
 
-//Binding functions to the options tab.
-$(function(){
-    $("#project_options_trigger").on("click", function() {
-        displayProjectOptions();
-    });
-    
-    $("#editor_options_trigger").on("click", function() {
-        displayEditorOptions();
-    });
-});
-
 //This method is called when updating the editor options.
 function updateEditorOptions() {
     var selectionBox = document.getElementById("editor_theme_box");
@@ -830,13 +726,6 @@ function updateEditorOptions() {
     myCodeMirror.setOption("smartIndent", document.getElementById("smartIndentOption").checked);
     myCodeMirror.setOption("lineNumbers", document.getElementById("lineNumbersOption").checked);
 }
-
-//Binding the save editor options button the updateEditorOptions function.
-$(function(){
-    $("#save_editor_options").on("click", function(){
-        updateEditorOptions();
-    });
-});
 
 //This method is called when updating the project options.
 function updateProjectOptions() {
@@ -867,46 +756,25 @@ function updateProjectOptions() {
     //controller5.report([{msg: message, className: "jquery-console-message-value"}]);
 }
 
-//Binding the save project options button to the updateProjectOptions function.
-$(function() {
-    $("#save_project_options").on("click", function(){
-        updateProjectOptions();
-    });
-});
-
 //Enter the site.
 function enterSite() {
-    $(".greetingLogin").addClass("login_inactive");
-    userName = $("#username").val();
-    getWorkspaceBase();
-    setTimeout(function(){
-        listWorkspaceProjects();
-    }, 1000); 
+    if($("#username").val() !== "" && $("#username").val().search(/\W+/g) === -1) { 
+        $(".greetingLogin").addClass("login_inactive");
+        userName = $("#username").val();
+        getWorkspaceBase();
+        setTimeout(function(){
+            listWorkspaceProjects();
+        }, 1000);    
+    } else {
+        alert("Invalid Username!");
+    }
 }
-
-//Binding enter button to action.
-$(function() {
-    $("#username_confirm_button").on("click", function(){
-        if($("#username").val() !== "" && $("#username").val().search(/\W+/g) === -1) {
-            enterSite();
-        } else {
-            alert("Invalid Username!");
-        }
-    });
-});
 
 //Logs the user out, and returns to the login page.
 function leaveSite() {
     $(".greetingLogin").removeClass("login_inactive");
     userName = "";
 }
-
-//Binding logout button.
-$(function(){
-    $(".exit_tab").on("click", function(){
-        chainCloseAllTabs(true);
-    });
-});
 
 //syncronize project
 function syncProject() {
@@ -915,16 +783,22 @@ function syncProject() {
 }
 
 $(function(){
-    $("#sync_project_trigger").on("click", function(){
-        syncProject();
-    });
     
-    $("#run_project_trigger").on("click", function() {
-        alert("Not yet supported!");
-    });
-});
-
-$(function(){
+    //      -- BINDING SIMPLE ON CLICK FUNCTIONS --
+    
+    $("#sync_project_trigger").on("click", function(){  syncProject();  });
+    $("#run_project_trigger").on("click", function() {  alert("Not yet supported!");    });
+    $(".exit_tab").on("click", function(){  chainCloseAllTabs(true);    });
+    $("#username_confirm_button").on("click", function(){   enterSite();    });
+    $("#save_project_options").on("click", function(){  updateProjectOptions(); });
+    $("#save_editor_options").on("click", function(){   updateEditorOptions();  });
+    $("#project_options_trigger").on("click", function() {  displayProjectOptions();    });
+    $("#editor_options_trigger").on("click", function() {   displayEditorOptions(); });
+    $("#save_file_trigger").on("click", function() {    saveFile(); });
+    $("#build_project_trigger").on("click", function(){ doBuild();  });
+    $("#closeCurrentTab").on("click", function(){   beginCloseProcess();    });
+    
+    //      -- ON BLUR FUNCTIONS --
     $("#MakefileName").on("blur", function() {
         $("#MakefileName").val($("#MakefileName").val().replace(/[^0-9a-zA-Z\._]/g, ""));
     });
@@ -937,5 +811,71 @@ $(function(){
         } while(oldString !== $("#MakefilePath").val());
         
         $("#MakefilePath").val($("#MakefilePath").val().replace(/(\.\.)/g, "."));
+    });
+    
+    //      -- ADDING FUNCTIONS TO TAB CLOSE CONFIRMATION POPUP --
+    $("#confirmFileSave").on("click", function() {
+        saveFile();
+        setTimeout(closeActiveTab(), 3000);
+        
+        $(".verifyFileSave").slideFadeToggle();
+        deferred.resolve("File saved.");
+    });
+    
+    $("#dontDoFileSave").on("click", function() {
+        closeActiveTab();
+        $(".verifyFileSave").slideFadeToggle();
+        deferred.resolve("File not saved.");
+    });
+    
+    $("#cancelFileClose").on("click", function() {
+        $(".verifyFileSave").slideFadeToggle();
+        deferred.reject("Process canceled");
+    });
+    
+    //      -- NEW FILE POPUP --
+    bindPopup($('#new_file_trigger'), $('.newFilePop'));
+    $("#FileName").on("blur", function() {
+        $("#FileName").val($("#FileName").val().replace(/[^0-9a-zA-Z\._]/g, ""));
+    });
+    $("#FilePath").on("blur", function() {
+        $("#FilePath").val($("#FilePath").val().replace(/[^0-9a-zA-Z\._\/]/g, ""));
+        do {
+            var oldString = $("#FilePath").val();
+            $("#FilePath").val($("#FilePath").val().replace(/(\.\.)/g, "."));
+        } while(oldString !== $("#FilePath").val());
+        
+        $("#FilePath").val($("#FilePath").val().replace(/(\.\.)/g, "."));
+    });
+    $("#createNewFile").on("click", function() {
+        //Close the current popup.
+        deselect($('#new_file_trigger'), $('.newFilePop'));
+        //Create a new project directory.
+        createFile($("#FileName").val(), $("#FilePath").val());
+    });
+    
+    //      -- NEW PROJECT POPUP --
+    bindPopup($('#contact'), $('.pop'));
+    $("#ProjectName").on("blur", function() {
+        $("#ProjectID").val( function() { 
+            //var projectID = $("#ProjectName").val().replace(/\W+/g, '-').toLowerCase());
+            var idFromName = $("#ProjectName").val().replace(/\W+/g, '-').toLowerCase();
+            if(idFromName.indexOf("-") === 0) {
+                idFromName = idFromName.substring(1, idFromName.length-1);
+            }
+            
+            if(idFromName.lastIndexOf("-") === idFromName.length - 1) {
+                idFromName = idFromName.substring(0, idFromName.length-1);
+            }
+            return idFromName;
+        });
+        
+        $("#ProjectName").val($("#ProjectName").val().replace(/\W+/g, ""));
+    });
+    $("#createNewProject").on("click", function() {
+        //Close the current popup.
+        deselect($('#contact'), $('.pop'));
+        //Create a new project directory.
+        createNewProject($("#ProjectID").val(), $("#ProjectName").val());
     });
 });
