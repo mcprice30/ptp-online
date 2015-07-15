@@ -72,7 +72,7 @@ public class LoadServer {
         initialSettings = initialSettings.substring(1, initialSettings.length());
         char delimiter = 187;
         if(!initialSettings.equals("ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace" + delimiter + "makefile")) {
-            performUpdateSettings(initialSettings, projectName, userId);
+            performUpdateSettings(initialSettings, projectName, userId, session);
         }
     }
     
@@ -106,7 +106,7 @@ public class LoadServer {
         }
         
         try {
-            session.getBasicRemote().sendText(handleMessage(actionType, payload, text, userId, projectName));
+            session.getBasicRemote().sendText(handleMessage(actionType, payload, text, userId, projectName, session));
         } catch (IOException ex) {
             System.out.println(ex.toString());
         }
@@ -132,9 +132,10 @@ public class LoadServer {
      * @param text If saving a file, the text to save.
      * @param userId The name of the user.
      * @param projectName The name of the project.
+     * @param session The ongoing websocket session.
      * @return The server's response.
      */
-    public static String handleMessage(String header, String payload, String text, String userId, String projectName) {
+    public static String handleMessage(String header, String payload, String text, String userId, String projectName, Session session) {
         switch (header) {
             case LOAD_KEY:
                 return performLoad(payload);
@@ -149,11 +150,13 @@ public class LoadServer {
             case DELETE_PROJECT_KEY:
                 return performDeleteProject(projectName, userId);
             case SETTINGS_KEY:
-                return performUpdateSettings(payload, projectName, userId);
+                return performUpdateSettings(payload, projectName, userId, session);
             case READ_SETTINGS_KEY:
                 return performReadSettings(projectName, userId);
             case SYNC_KEY:
                 return syncFiles(projectName, userId);
+            case USE_PASSWORD_KEY:
+                return registerKeyPair(payload, projectName);
             default:
                 return ERROR_RESPONSE + "Unknown Action!";
         }
@@ -344,7 +347,7 @@ public class LoadServer {
      * @param userId The id assigned to the user.
      * @return A message indicating the success of the action.
      */
-    public static String performUpdateSettings(String payload, String projectName, String userId) {
+    public static String performUpdateSettings(String payload, String projectName, String userId, Session session) {
         System.out.println(payload);
         String propertiesFile = WorkspaceResource.getResourceBase(userId) + "/" + projectName + "/.settings.prop";
         char delimiter = 187;
@@ -357,7 +360,14 @@ public class LoadServer {
             makefile = settingsList[4];
             
             ServerInfo info = new ServerInfo(username, ip, password, userId + "'s server for " + projectName);
-            JschUtil.registerWithServer(info);
+            if(!JschUtil.readyForSSH(info)) {
+                try {
+                    session.getBasicRemote().sendText(PASSWORD_PROMPT_RESPONSE);
+                } catch (IOException e) {
+                    System.out.println("Unable to message client!");
+                }
+            }
+            //JschUtil.registerWithServer(info);
             //String output = SETTINGS_RESPONSE + "Settings updated successfully!";
             //  output += "\nIP: " + ip;
             // output += "\nUsername: " + username;
@@ -412,5 +422,16 @@ public class LoadServer {
      */
     public static String syncFiles(String projectName, String userId) {
         return SYNC_RESPONSE + FileSync.syncFiles(ip, username, password, directory, projectName, userId);
+    }
+    
+    /**
+     * 
+     * @param payload
+     * @return 
+     */
+    public static String registerKeyPair(String payload, String projectName) {
+        ServerInfo info = new ServerInfo(username, ip, payload, username + "'s server for " + projectName);
+        JschUtil.registerWithServer(info);
+        return KEYPAIR_GENERATION_RESPONSE + (JschUtil.readyForSSH(info) ? "Login successful!" : "Login failure!");
     }
 }

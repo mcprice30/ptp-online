@@ -30,6 +30,8 @@ public class Constants {
     public static final String READ_SETTINGS_KEY = "READ_SETTINGS";
     /** Prefaces requests to synchronize the server with the target supercomputer */
     public static final String SYNC_KEY = "SYNC";
+    /** Prefaces requests to generate a security key with a given password. */
+    public static final String USE_PASSWORD_KEY = "AUTH";
     
         //      --RESPONSE KEYS--
     
@@ -53,7 +55,11 @@ public class Constants {
     public static final String READ_SETTINGS_RESPONSE = "R";
     /** Prefaces responses to rsync requests. */
     public static final String SYNC_RESPONSE = "Y";
-    
+    /** Prefaces responses prompting for a password. */
+    public static final String PASSWORD_PROMPT_RESPONSE = "Q";
+    /** Prefaces responses pertaining to keypair generation */
+    public static final String KEYPAIR_GENERATION_RESPONSE = "K";
+        
         //      --OTHER CONSTANTS--
     
     /** This text indicates that there is no makefile specified.*/

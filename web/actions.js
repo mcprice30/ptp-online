@@ -395,11 +395,6 @@ function openWebSocket(projectName) {
                 var options = response.split('\u00BB');
                 $("#TargetIP").val(options[0]);
                 $("#TargetUsername").val(options[1]);
-                if (options[2] === "NO_PASSWORD_ENTERED") {
-                    $("#TargetPassword").val("");
-                } else {
-                    $("#TargetPassword").val(options[2]);
-                }
                 $("#TargetDirectory").val(options[3]);
                 var makeFile = options[4];
                 $("#MakefileName").val(makeFile.substring(makeFile.lastIndexOf('/') + 1, makeFile.length));
@@ -410,6 +405,11 @@ function openWebSocket(projectName) {
                 }
             } else if (responseType === "Y") {
                 controller5.report([{msg:"[FILE TRANSFER]: --Report--\n" + response, className:"jquery-console-message-value"}]);
+            } else if (responseType === "Q") {
+                var password  = prompt("Please enter your password: ");
+                webSocket.send("AUTH " + password);
+            } else if (responseType === "K") {
+                controller5.report([{msg:"[LOGIN]: " + response, className:"jquery-console-message-value"}]);
             } else {
                 controller5.report([{msg:"[ERROR]: Could not resolve server response!", className:"jquery-console-message-value"}]);
             }  
@@ -733,7 +733,7 @@ function updateProjectOptions() {
     var username = $("#TargetUsername").val();
     if(username === null || username === "")
         username = "NO_USERNAME_ENTERED";
-    var password = $("#TargetPassword").val();
+    var password = null;
     if(password === null || password === "")
         password = "NO_PASSWORD_ENTERED";
     var directory = $("#TargetDirectory").val();
