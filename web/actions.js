@@ -23,6 +23,7 @@ var activeTab;
 var deferred;
 var workspaceBase = null;
 var userName;
+var syncQueued;
 
 //Gets the base string of the workspace location from a server-side GET.
 function getWorkspaceBase() {
@@ -406,8 +407,9 @@ function openWebSocket(projectName) {
             } else if (responseType === "Y") {
                 controller5.report([{msg:"[FILE TRANSFER]: --Report--\n" + response, className:"jquery-console-message-value"}]);
             } else if (responseType === "Q") {
+                syncQueued = (response === "yes");
                 var password  = prompt("Please enter your password: ");
-                webSocket.send("AUTH " + password);
+                webSocket.send("AUTH " + password + (syncQueued ? " yes" : " no"));
             } else if (responseType === "K") {
                 controller5.report([{msg:"[LOGIN]: " + response, className:"jquery-console-message-value"}]);
             } else {

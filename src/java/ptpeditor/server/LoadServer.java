@@ -156,7 +156,7 @@ public class LoadServer {
             case SYNC_KEY:
                 return syncFiles(projectName, userId);
             case USE_PASSWORD_KEY:
-                return registerKeyPair(payload, projectName);
+                return registerKeyPair(payload, projectName, session, text, userId);
             default:
                 return ERROR_RESPONSE + "Unknown Action!";
         }
@@ -362,7 +362,7 @@ public class LoadServer {
             ServerInfo info = new ServerInfo(username, ip, password, userId + "'s server for " + projectName);
             if(!JschUtil.readyForSSH(info)) {
                 try {
-                    session.getBasicRemote().sendText(PASSWORD_PROMPT_RESPONSE);
+                    session.getBasicRemote().sendText(PASSWORD_PROMPT_RESPONSE + "no");
                 } catch (IOException e) {
                     System.out.println("Unable to message client!");
                 }
@@ -421,6 +421,9 @@ public class LoadServer {
      * @return 
      */
     public static String syncFiles(String projectName, String userId) {
+        if(!JschUtil.readyForSSH(new ServerInfo(username, ip, username + "'s server for " + projectName))) {
+            return PASSWORD_PROMPT_RESPONSE + "yes"; 
+        }
         return SYNC_RESPONSE + FileSync.syncFiles(ip, username, password, directory, projectName, userId);
     }
     
@@ -429,9 +432,17 @@ public class LoadServer {
      * @param payload
      * @return 
      */
-    public static String registerKeyPair(String payload, String projectName) {
+    public static String registerKeyPair(String payload, String projectName, Session session, String doSyncAtEnd, String userId) {
         ServerInfo info = new ServerInfo(username, ip, payload, username + "'s server for " + projectName);
         JschUtil.registerWithServer(info);
+        if(doSyncAtEnd.equals("yes") && JschUtil.readyForSSH(info)) {
+            try {
+                session.getBasicRemote().sendText(syncFiles(projectName, userId));
+            } catch (IOException e) {
+                System.out.println("ERROR: could not message client\n" + e.toString());
+            }
+        }
+        
         return KEYPAIR_GENERATION_RESPONSE + (JschUtil.readyForSSH(info) ? "Login successful!" : "Login failure!");
     }
 }
