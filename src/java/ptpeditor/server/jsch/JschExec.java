@@ -58,7 +58,7 @@ public class JschExec {
         return this;
     }
     
-        /**
+    /**
      * Connects to the remote server.
      * @return
      * @throws Exception 
@@ -79,24 +79,41 @@ public class JschExec {
      * @param command The command to execute.
      * @throws IOException
      * @throws JSchException Thrown if error connecting.
+     * @return The command line's output.
      */
-    public void execute(String command) throws IOException, JSchException {
+    public String execute(String command, boolean willWrite) throws IOException, JSchException {
         flag = true;
+        String output = "", errOutput = "";
         System.out.println("executing: " + command);
         InputStream stream = channelExec.getInputStream();
         channelExec.setCommand(command);
         channelExec.connect();
         System.out.println("Connected!");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        BufferedReader errReader = new BufferedReader(new InputStreamReader(channelExec.getErrStream()));
         String line;
         System.out.println("Starting Loop!");
         if(reader.ready()) {
             while ((line = reader.readLine()) != null && flag) {
                 System.out.println("Line: " + line);
+                output += line + "\n";
+            }
+        }
+        if(!willWrite) {
+            System.out.println("ERRORS!");
+            while ((line = errReader.readLine()) != null && flag) {
+                System.out.println(line);
+                errOutput += line + "\n";
+            }
+            if(errOutput.length() > 0) {
+                
+                output += (output.length() > 0 ? "\n" : "") + "ERROR:\n" + errOutput;
+                output += "Command used: " + command;
             }
         }
         System.out.println("execution ending");
         //this.stop().disconnect();
+        return output;
     }
     
     public void enterTextAndClose(String message) throws IOException {

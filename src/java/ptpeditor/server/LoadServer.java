@@ -32,6 +32,7 @@ import javax.websocket.server.PathParam;
 
 import ptpeditor.server.jsch.ServerInfo;
 import ptpeditor.server.jsch.JschUtil;
+import ptpeditor.server.jsch.JschExec;
 
 /**
  * The LoadServer will eventually take over entirely for the SaveServer
@@ -50,6 +51,7 @@ public class LoadServer {
     private static String username = null;
     private static String password = null;
     private static String directory = null;
+    private static String makefile = null;
     
     /**
      *  The onOpen message sends a message back to the client side once
@@ -70,7 +72,7 @@ public class LoadServer {
         String initialSettings = performReadSettings(projectName, userId);
         initialSettings = initialSettings.substring(1, initialSettings.length());
         char delimiter = 187;
-        if(!initialSettings.equals("ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace")) {
+        if(!initialSettings.equals("ip" + delimiter + "username" + delimiter + "password" + delimiter + "workspace" + delimiter + "makefile")) {
             performUpdateSettings(initialSettings, projectName, userId);
         }
     }
@@ -140,7 +142,7 @@ public class LoadServer {
             case SAVE_KEY:
                 return performSave(payload, text, projectName, userId);
             case BUILD_KEY:
-                return performBuild(payload);
+                return performBuild(projectName);
             case NEW_KEY:
                 return performCreate(payload);
             case DELETE_KEY:
@@ -205,30 +207,32 @@ public class LoadServer {
      * @param actionFile The absolute path of the file to compile.
      * @return Any compilation errors, or new of a successful build.
      */ 
-    public static String performBuild(String actionFile) {
-        String fileType = actionFile.substring(actionFile.lastIndexOf('.') + 1, actionFile.length());
-        if(fileType.equals("java")) {
-            try {
-                Process p = Runtime.getRuntime().exec("javac " + actionFile);
-                BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                String output = "", line;
-                while((line = in.readLine()) != null) {
-                    System.out.println(line);
-                    output += line + "\n";
-                }
-                System.out.println("END OF LOOP");
-                if(output.equals("")) {
-                    return (BUILD_RESPONSE + "BUILD SUCCESS!");
-                } else {
-                    return BUILD_RESPONSE + output;
-                }
-            } catch (IOException e) {
-                System.out.println(e.toString());
-                return BUILD_RESPONSE + "An error occurred!";
-            }
-        } else {
-            return BUILD_RESPONSE + "File Type currently unsupported.";
+    public static String performBuild(String projectName) {
+        String command;
+        String cFlag = "-C " + directory + "/" + projectName;
+
+        String makeFile = makefile;
+        if(makeFile.indexOf("/") == 0) {
+            makeFile = makeFile.substring(1, makeFile.length());
         }
+        String fFlag = " -f " + makeFile;
+        if(makeFile.equals(DEFAULT_MAKE_FILE)) {
+            command = "make " + cFlag;
+        } else {
+            command = "make " + cFlag + fFlag;   
+        }
+        
+        ServerInfo info = new ServerInfo(username, ip, username + "'s server for " + projectName);
+        JschExec writeKeyExec = new JschExec(info);
+        try {
+            String output = BUILD_RESPONSE + writeKeyExec.connect().execute(command, false);
+            writeKeyExec.stop().disconnect();
+            return output;
+        } catch (Exception e) {
+            return BUILD_RESPONSE + "ERROR: " + e.toString();
+        }
+        
+
     }
     
     /**
@@ -351,6 +355,7 @@ public class LoadServer {
             username = settingsList[1];
             password = settingsList[2];
             directory = settingsList[3];
+            makefile = settingsList[4];
             
             ServerInfo info = new ServerInfo(username, ip, password, userId + "'s server for " + projectName);
             JschUtil.registerWithServer(info);

@@ -51,7 +51,7 @@ public class JschUtil {
         
         JschExec writeKeyExec = new JschExec(info);
         try {
-            writeKeyExec.connect().execute("cat >> .ssh/authorized_keys");
+            writeKeyExec.connect().execute("cat >> .ssh/authorized_keys", true);
             writeKeyExec.enterTextAndClose(publicKey);
             writeKeyExec.stop().disconnect();
         } catch (Exception e) {

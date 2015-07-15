@@ -53,4 +53,9 @@ public class Constants {
     public static final String READ_SETTINGS_RESPONSE = "R";
     /** Prefaces responses to rsync requests. */
     public static final String SYNC_RESPONSE = "Y";
+    
+        //      --OTHER CONSTANTS--
+    
+    /** This text indicates that there is no makefile specified.*/
+    public static final String DEFAULT_MAKE_FILE = "NO_MAKEFILE_FOUND";
 }

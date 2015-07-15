@@ -106,8 +106,8 @@ $(document).ready(function(){
 //On a build request, this sends a GET request to the server, which attempts to
 //build the project before sending compilation errors (if any) to the user.
 function doBuild() {
-    controller5.report([{msg:"[BUILD]: Preparing to build: " + activeFile, className:"jquery-console-message-value"}]);
-    webSocket.send("BUILD " + activeFile);
+    controller5.report([{msg:"[BUILD]: Preparing to build: " + activeProject, className:"jquery-console-message-value"}]);
+    webSocket.send("BUILD");
 }
 
 //Performing automatic function calls
@@ -456,6 +456,13 @@ function openWebSocket(projectName) {
                     $("#TargetPassword").val(options[2]);
                 }
                 $("#TargetDirectory").val(options[3]);
+                var makeFile = options[4];
+                $("#MakefileName").val(makeFile.substring(makeFile.lastIndexOf('/') + 1, makeFile.length));
+                $("#MakefilePath").val(makeFile.substring(0, makeFile.lastIndexOf('/') + 1));
+                if(options[4] === "NO_MAKEFILE_FOUND") {
+                    $("#MakefileName").val("");
+                    $("#MakefilePath").val("");
+                }
             } else if (responseType === "Y") {
                 controller5.report([{msg:"[FILE TRANSFER]: --Report--\n" + response, className:"jquery-console-message-value"}]);
             } else {
@@ -756,7 +763,7 @@ $(function(){
     $("#save_file_trigger").on("click", function() {
         saveFile();
     });
-    $("#build_file_trigger").on("click", function(){
+    $("#build_project_trigger").on("click", function(){
         doBuild();
     });
 });
@@ -845,7 +852,17 @@ function updateProjectOptions() {
     var directory = $("#TargetDirectory").val();
     if(directory === null || directory === "")
         directory = "workspace";
-    var message = ip + '\u00BB' + username + '\u00BB' + password + '\u00BB' + directory;
+    var makeFile = $("#MakefileName").val();
+    var makePath = $("#MakefilePath").val();
+    if(makePath === null || makePath === "") {
+        makePath = "/";
+    }
+    if(makeFile === null || makeFile === "") {
+        makeFile = "NO_MAKEFILE_FOUND";
+    } else {
+        makeFile = makePath + makeFile;
+    }
+    var message = ip + '\u00BB' + username + '\u00BB' + password + '\u00BB' + directory + '\u00BB' + makeFile;
     webSocket.send("SETTINGS " + message);
     //controller5.report([{msg: message, className: "jquery-console-message-value"}]);
 }
@@ -900,5 +917,21 @@ function syncProject() {
 $(function(){
     $("#sync_project_trigger").on("click", function(){
         syncProject();
+    });
+});
+
+$(function(){
+    $("#MakefileName").on("blur", function() {
+        $("#MakefileName").val($("#MakefileName").val().replace(/[^0-9a-zA-Z\._]/g, ""));
+    });
+    
+    $("#MakefilePath").on("blur", function() {
+        $("#MakefilePath").val($("#MakefilePath").val().replace(/[^0-9a-zA-Z\._\/]/g, ""));
+        do {
+            var oldString = $("#MakefilePath").val();
+            $("#MakefilePath").val($("#MakefilePath").val().replace(/(\.\.)/g, "."));
+        } while(oldString !== $("#MakefilePath").val());
+        
+        $("#MakefilePath").val($("#MakefilePath").val().replace(/(\.\.)/g, "."));
     });
 });
