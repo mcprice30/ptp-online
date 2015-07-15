@@ -318,7 +318,7 @@ div.editor_tab a {
     background: #AAAAAA;
 }
 
-.verifyFileSave, .confirmDeleteFile, .confirmDeleteProject{
+.verifyFileSave, .confirmDeleteFile, .confirmDeleteProject, .passwordPrompt{
     background-color:#444444;
     border:1px solid #999999;
     color: #EEEEEE;

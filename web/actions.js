@@ -408,8 +408,7 @@ function openWebSocket(projectName) {
                 controller5.report([{msg:"[FILE TRANSFER]: --Report--\n" + response, className:"jquery-console-message-value"}]);
             } else if (responseType === "Q") {
                 syncQueued = (response === "yes");
-                var password  = prompt("Please enter your password: ");
-                webSocket.send("AUTH " + password + (syncQueued ? " yes" : " no"));
+                $(".passwordPrompt").slideFadeToggle();
             } else if (responseType === "K") {
                 controller5.report([{msg:"[LOGIN]: " + response, className:"jquery-console-message-value"}]);
             } else {
@@ -877,5 +876,12 @@ $(function(){
         deselect($('#contact'), $('.pop'));
         //Create a new project directory.
         createNewProject($("#ProjectID").val(), $("#ProjectName").val());
+    });
+    
+    //      -- PASSWORD ENTRY -- 
+    $("#password_submit_trigger").on("click", function() {
+        var password  = $("#password").val();
+        webSocket.send("AUTH " + password + (syncQueued ? " yes" : " no")); 
+        $(".passwordPrompt").slideFadeToggle();
     });
 });
