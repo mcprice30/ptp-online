@@ -46,8 +46,24 @@ public class JschUtil {
         JschExec testExec = new JschExec(info);
         try {
             testExec.connectNoPw();
+            testExec.disconnect();
+            return true;
+        } catch (JSchException e) { 
+            System.out.println("NOT READY FOR SSH: " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static boolean canConnect(ServerInfo info) {
+        JschExec testExec = new JschExec(info);
+        try {
+            testExec.connect();
+            testExec.disconnect();
             return true;
         } catch (JSchException e) {
+            System.out.println("LOGIN FAILURE: " + e.toString());
+            e.printStackTrace();
             return false;
         }
     }
@@ -71,11 +87,42 @@ public class JschUtil {
         
         JschExec writeKeyExec = new JschExec(info);
         try {
+            writeKeyExec.connect().execute("cat .ssh/authorized_keys > .ssh/authorized_keys_copy", false);
+            writeKeyExec.stop().disconnect();
             writeKeyExec.connect().execute("cat >> .ssh/authorized_keys", true);
             writeKeyExec.enterTextAndClose(publicKey);
             writeKeyExec.stop().disconnect();
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.toString());
+            writeKeyExec.connect().execute("chmod 600 .ssh/*", false);
+            writeKeyExec.stop().disconnect();
+            writeKeyExec.connect().execute("chmod 700 .ssh", false);
+            writeKeyExec.stop().disconnect();
+        } catch (JSchException e) {
+            System.out.println("CONNECTION ERROR: " + e.toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("EXECUTION ERROR: " + e.toString());
+        }
+    }
+    
+    public static void removePublicKey(ServerInfo info) {
+        JschExec removeKeyExec = new JschExec(info);
+        try {
+            System.out.println("Removing Keys!");
+            removeKeyExec.connect().execute("cat .ssh/authorized_keys_copy > .ssh/authorized_keys", false);
+            removeKeyExec.stop().disconnect();
+            System.out.println("Deleting backup.");
+            removeKeyExec.connect().execute("rm .ssh/authorized_keys_copy", false);
+            removeKeyExec.stop().disconnect();
+            removeKeyExec.connect().execute("chmod 600 .ssh/*", false);
+            removeKeyExec.stop().disconnect();
+            removeKeyExec.connect().execute("chmod 700 .ssh", false);
+            removeKeyExec.stop().disconnect();
+           // removeKeyExec.connect().execute("rm .ssh/authorized_keys", false);
+        } catch (JSchException e) {
+            System.out.println("CONNECTION ERROR: " + e.toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("EXECUTION ERROR: " + e.toString());
         }
     }
 }

@@ -52,11 +52,12 @@ public class JschExec {
      * @throws JSchException Thrown if error connecting. 
      */
     public JschExec connect() throws JSchException {
-        jsch.addIdentity(JschUtil.sshDirectory() + "/id_dsa");
+        //jsch.addIdentity(JschUtil.sshDirectory() + "/id_dsa");
         System.out.println("connecting to " + name);
         session = jsch.getSession(userName, host);
         session.setConfig("StrictHostKeyChecking", "no");
         session.setPassword(password);
+        session.disconnect();
         session.connect();
         channelExec = (ChannelExec) session.openChannel("exec");
         System.out.println("connected to " + name);
@@ -108,10 +109,14 @@ public class JschExec {
             }
         }
         if(!willWrite) {
-            System.out.println("ERRORS!");
+            boolean errWritten = false;
             while ((line = errReader.readLine()) != null && flag) {
+                if(!errWritten) {
+                    System.out.println("ERRORS!");
+                }
                 System.out.println(line);
                 errOutput += line + "\n";
+                errWritten = true;
             }
             if(errOutput.length() > 0) {
                 

@@ -881,6 +881,10 @@ $(function(){
     //      -- PASSWORD ENTRY -- 
     $("#password_submit_trigger").on("click", function() {
         var password  = $("#password").val();
+        if(password === undefined || password === null || password === "") {
+            password = "NO_PASSWORD_SET";
+        }
+        $("#password").val("");
         webSocket.send("AUTH " + password + (syncQueued ? " yes" : " no")); 
         $(".passwordPrompt").slideFadeToggle();
     });

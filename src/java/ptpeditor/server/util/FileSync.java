@@ -77,6 +77,7 @@ public class FileSync {
                 output += line + "\n";
                 System.out.println(line);
             }
+            System.out.println("Done Synching!");
             return output;
         } catch (IOException e) {
             System.out.println(e.toString());

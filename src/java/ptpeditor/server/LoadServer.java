@@ -148,7 +148,7 @@ public class LoadServer {
             case SAVE_KEY:
                 return performSave(payload, text, projectName, userId);
             case BUILD_KEY:
-                return performBuild(projectName, userId);
+                return performBuild(projectName, userId, session);
             case NEW_KEY:
                 return performCreate(payload);
             case DELETE_KEY:
@@ -160,7 +160,7 @@ public class LoadServer {
             case READ_SETTINGS_KEY:
                 return performReadSettings(projectName, userId);
             case SYNC_KEY:
-                return syncFiles(projectName, userId);
+                return syncFiles(projectName, userId, session);
             case USE_PASSWORD_KEY:
                 return registerKeyPair(payload, projectName, session, text, userId);
             default:
@@ -216,7 +216,7 @@ public class LoadServer {
      * @param userId The ID associated with the user making the request.
      * @return Any compilation errors, or new of a successful build.
      */ 
-    public static String performBuild(String projectName, String userId) {
+    public static String performBuild(String projectName, String userId, Session session) {
         UserInfo uInfo = userInfoMap.get(userId);
         String directory = uInfo.getDirectory();
         String makefile = uInfo.getMakefile();
@@ -237,7 +237,12 @@ public class LoadServer {
             command = "make " + cFlag + fFlag;   
         }
         
-        ServerInfo info = new ServerInfo(username, ip, username + "'s server for " + projectName);
+        ServerInfo info = new ServerInfo(username, ip, userInfoMap.get(userId).getPassword(),username + "'s server for " + projectName);
+        
+        if(!JschUtil.canConnect(info)) {
+            return (PASSWORD_PROMPT_RESPONSE + "no");
+        }
+        
         JschExec writeKeyExec = new JschExec(info);
         try {
             String output = BUILD_RESPONSE + writeKeyExec.connect().execute(command, false);
@@ -376,13 +381,6 @@ public class LoadServer {
             userInfoMap.put(userId, uInfo);
             
             ServerInfo info = new ServerInfo(username, ip, password, userId + "'s server for " + projectName);
-            if(!JschUtil.readyForSSH(info)) {
-                try {
-                    session.getBasicRemote().sendText(PASSWORD_PROMPT_RESPONSE + "no");
-                } catch (IOException e) {
-                    System.out.println("Unable to message client!");
-                }
-            }
             //JschUtil.registerWithServer(info);
             //String output = SETTINGS_RESPONSE + "Settings updated successfully!";
             //  output += "\nIP: " + ip;
@@ -436,16 +434,23 @@ public class LoadServer {
      * @param userId The id assigned to the user.
      * @return 
      */
-    public static String syncFiles(String projectName, String userId) {
+    public static String syncFiles(String projectName, String userId, Session session) {
         UserInfo uInfo = userInfoMap.get(userId);
         String username = uInfo.getUsername();
         String ip = uInfo.getIP();
         String password = uInfo.getPassword();
         String directory = uInfo.getDirectory();
-        if(!JschUtil.readyForSSH(new ServerInfo(username, ip, username + "'s server for " + projectName))) {
-            return PASSWORD_PROMPT_RESPONSE + "yes"; 
+        ServerInfo info = new ServerInfo(username, ip, password, username + "'s server for " + projectName);
+        if(!JschUtil.readyForSSH(info)) {
+            if(!JschUtil.canConnect(info)) {
+                return PASSWORD_PROMPT_RESPONSE + "yes";
+            } else {
+                registerKeyPair(uInfo.getPassword(), projectName, session, "no", userId);
+            }
         }
-        return SYNC_RESPONSE + FileSync.syncFiles(ip, username, password, directory, projectName, userId);
+        String output = SYNC_RESPONSE + FileSync.syncFiles(ip, username, password, directory, projectName, userId);
+        JschUtil.removePublicKey(info);
+        return output;
     }
     
     /**
@@ -457,17 +462,18 @@ public class LoadServer {
         UserInfo uInfo = userInfoMap.get(userId);
         String username = uInfo.getUsername();
         String ip = uInfo.getIP();
+        uInfo.setPassword(payload);
         
         ServerInfo info = new ServerInfo(username, ip, payload, username + "'s server for " + projectName);
         JschUtil.registerWithServer(info);
         if(doSyncAtEnd.equals("yes") && JschUtil.readyForSSH(info)) {
             try {
-                session.getBasicRemote().sendText(syncFiles(projectName, userId));
+                session.getBasicRemote().sendText(syncFiles(projectName, userId, session));
             } catch (IOException e) {
                 System.out.println("ERROR: could not message client\n" + e.toString());
             }
         }
         
-        return KEYPAIR_GENERATION_RESPONSE + (JschUtil.readyForSSH(info) ? "Login successful!" : "Login failure!");
+        return KEYPAIR_GENERATION_RESPONSE + (JschUtil.canConnect(info) ? "Login successful!" : "Login failure!");
     }
 }
