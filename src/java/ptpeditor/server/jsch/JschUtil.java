@@ -32,9 +32,7 @@ public class JschUtil {
      * @param info The information on the server you wish to set up a keypair with. 
      */
     public static void registerWithServer(ServerInfo info) {
-        if(!readyForSSH(info)) {
-            sendPublicKey(info);
-        }
+        sendPublicKey(info);
     }
     
     /**
@@ -87,14 +85,8 @@ public class JschUtil {
         
         JschExec writeKeyExec = new JschExec(info);
         try {
-            writeKeyExec.connect().execute("cat .ssh/authorized_keys > .ssh/authorized_keys_copy", false);
-            writeKeyExec.stop().disconnect();
-            writeKeyExec.connect().execute("cat >> .ssh/authorized_keys", true);
+            writeKeyExec.connect().execute("cat .ssh/authorized_keys > .ssh/authorized_keys_copy; cat >> .ssh/authorized_keys", true);
             writeKeyExec.enterTextAndClose(publicKey);
-            writeKeyExec.stop().disconnect();
-            writeKeyExec.connect().execute("chmod 600 .ssh/*", false);
-            writeKeyExec.stop().disconnect();
-            writeKeyExec.connect().execute("chmod 700 .ssh", false);
             writeKeyExec.stop().disconnect();
         } catch (JSchException e) {
             System.out.println("CONNECTION ERROR: " + e.toString());
@@ -108,16 +100,8 @@ public class JschUtil {
         JschExec removeKeyExec = new JschExec(info);
         try {
             System.out.println("Removing Keys!");
-            removeKeyExec.connect().execute("cat .ssh/authorized_keys_copy > .ssh/authorized_keys", false);
+            removeKeyExec.connect().execute("cat .ssh/authorized_keys_copy > .ssh/authorized_keys; rm .ssh/authorized_keys_copy", false);
             removeKeyExec.stop().disconnect();
-            System.out.println("Deleting backup.");
-            removeKeyExec.connect().execute("rm .ssh/authorized_keys_copy", false);
-            removeKeyExec.stop().disconnect();
-            removeKeyExec.connect().execute("chmod 600 .ssh/*", false);
-            removeKeyExec.stop().disconnect();
-            removeKeyExec.connect().execute("chmod 700 .ssh", false);
-            removeKeyExec.stop().disconnect();
-           // removeKeyExec.connect().execute("rm .ssh/authorized_keys", false);
         } catch (JSchException e) {
             System.out.println("CONNECTION ERROR: " + e.toString());
             e.printStackTrace();

@@ -37,6 +37,8 @@ import ptpeditor.server.jsch.ServerInfo;
 import ptpeditor.server.jsch.JschUtil;
 import ptpeditor.server.jsch.JschExec;
 
+import com.jcraft.jsch.JSchException;
+
 /**
  * The LoadServer will eventually take over entirely for the SaveServer
  * as the primary server websocket endpoint. Its purpose is to add save/load
@@ -441,13 +443,17 @@ public class LoadServer {
         String password = uInfo.getPassword();
         String directory = uInfo.getDirectory();
         ServerInfo info = new ServerInfo(username, ip, password, username + "'s server for " + projectName);
-        if(!JschUtil.readyForSSH(info)) {
-            if(!JschUtil.canConnect(info)) {
-                return PASSWORD_PROMPT_RESPONSE + "yes";
+        try {
+            JschExec testExec = new JschExec(info);
+            testExec.connect();
+        } catch (JSchException e) {
+            if(e.getCause() instanceof java.net.SocketException) {
+                return SYNC_RESPONSE + "Could not sync now. Please try again later.";
             } else {
-                registerKeyPair(uInfo.getPassword(), projectName, session, "no", userId);
+                return PASSWORD_PROMPT_RESPONSE + "yes"; 
             }
         }
+        registerKeyPair(uInfo.getPassword(), projectName, session, "no", userId);
         String output = SYNC_RESPONSE + FileSync.syncFiles(ip, username, password, directory, projectName, userId);
         JschUtil.removePublicKey(info);
         return output;
@@ -466,7 +472,7 @@ public class LoadServer {
         
         ServerInfo info = new ServerInfo(username, ip, payload, username + "'s server for " + projectName);
         JschUtil.registerWithServer(info);
-        if(doSyncAtEnd.equals("yes") && JschUtil.readyForSSH(info)) {
+        if(doSyncAtEnd.equals("yes")) {
             try {
                 session.getBasicRemote().sendText(syncFiles(projectName, userId, session));
             } catch (IOException e) {
