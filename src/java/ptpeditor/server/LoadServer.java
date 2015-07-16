@@ -15,6 +15,10 @@ package ptpeditor.server;
 import static ptpeditor.server.util.Constants.*;
 
 import ptpeditor.server.util.FileSync;
+import ptpeditor.server.util.UserInfo;
+
+import java.util.HashMap;
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,11 +50,13 @@ import ptpeditor.server.jsch.JschExec;
 @ServerEndpoint("/load/{userId}/{projectName}")
 public class LoadServer {
     
-    private static String ip = null;
-    private static String username = null;
-    private static String password = null;
-    private static String directory = null;
-    private static String makefile = null;
+   // private static String ip = null;
+   // private static String username = null;
+ //   private static String password = null;
+ //   private static String directory = null;
+ //   private static String makefile = null;
+    
+    private static HashMap<String, UserInfo> userInfoMap = new HashMap<String, UserInfo>();
     
     /**
      *  The onOpen message sends a message back to the client side once
@@ -142,7 +148,7 @@ public class LoadServer {
             case SAVE_KEY:
                 return performSave(payload, text, projectName, userId);
             case BUILD_KEY:
-                return performBuild(projectName);
+                return performBuild(projectName, userId);
             case NEW_KEY:
                 return performCreate(payload);
             case DELETE_KEY:
@@ -207,9 +213,16 @@ public class LoadServer {
     /**
      * Calls javac on all java files this method is called on. 
      * @param projectName The name of the project that is being built.
+     * @param userId The ID associated with the user making the request.
      * @return Any compilation errors, or new of a successful build.
      */ 
-    public static String performBuild(String projectName) {
+    public static String performBuild(String projectName, String userId) {
+        UserInfo uInfo = userInfoMap.get(userId);
+        String directory = uInfo.getDirectory();
+        String makefile = uInfo.getMakefile();
+        String username = uInfo.getUsername();
+        String ip = uInfo.getIP();
+        
         String command;
         String cFlag = "-C " + directory + "/" + projectName;
 
@@ -353,11 +366,14 @@ public class LoadServer {
         char delimiter = 187;
         String[] settingsList = payload.split((delimiter + ""));
         try {
-            ip = settingsList[0];
-            username = settingsList[1];
-            password = settingsList[2];
-            directory = settingsList[3];
-            makefile = settingsList[4];
+            String ip = settingsList[0];
+            String username = settingsList[1];
+            String password = settingsList[2];
+            String directory = settingsList[3];
+            String makefile = settingsList[4];
+            
+            UserInfo uInfo = new UserInfo(ip, username, password, directory, makefile);
+            userInfoMap.put(userId, uInfo);
             
             ServerInfo info = new ServerInfo(username, ip, password, userId + "'s server for " + projectName);
             if(!JschUtil.readyForSSH(info)) {
@@ -421,6 +437,11 @@ public class LoadServer {
      * @return 
      */
     public static String syncFiles(String projectName, String userId) {
+        UserInfo uInfo = userInfoMap.get(userId);
+        String username = uInfo.getUsername();
+        String ip = uInfo.getIP();
+        String password = uInfo.getPassword();
+        String directory = uInfo.getDirectory();
         if(!JschUtil.readyForSSH(new ServerInfo(username, ip, username + "'s server for " + projectName))) {
             return PASSWORD_PROMPT_RESPONSE + "yes"; 
         }
@@ -433,6 +454,10 @@ public class LoadServer {
      * @return 
      */
     public static String registerKeyPair(String payload, String projectName, Session session, String doSyncAtEnd, String userId) {
+        UserInfo uInfo = userInfoMap.get(userId);
+        String username = uInfo.getUsername();
+        String ip = uInfo.getIP();
+        
         ServerInfo info = new ServerInfo(username, ip, payload, username + "'s server for " + projectName);
         JschUtil.registerWithServer(info);
         if(doSyncAtEnd.equals("yes") && JschUtil.readyForSSH(info)) {
