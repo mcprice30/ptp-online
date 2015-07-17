@@ -948,3 +948,21 @@ function closeTimeout(e, menu) {
         $('body').off("click");
     } 
 }
+
+$(function(){
+    
+    $("#sync_project_context_trigger").on('click', function(){  syncProject();  });
+    $('#new_file_context_trigger').on('click', function(){ $('.newFilePop').slideFadeToggle(); });
+    $("#delete_project_context_trigger").on('click', function(){ $('.confirmDeleteProject').slideFadeToggle();});
+    $("#close_project_context_trigger").on('click', function(){ chainCloseAllTabs(false); });
+    $("#build_project_context_trigger").on('click', function(){ doBuild(); });
+    $("#run_project_context_trigger").on('click', function(){ alert("Not yet supported!"); });
+    
+    $('#new_project_context_trigger').on('click', function(){ $('.pop').slideFadeToggle(); });
+    
+    $("#save_file_context_trigger").on('click', function(){ saveFile(); });
+    $("#close_tab_context_trigger").on('click', function(){ beginCloseProcess(); });
+    $("#delete_file_context_trigger").on('click', function() {$(".confirmDeleteFile").slideFadeToggle();});
+    
+    
+});
