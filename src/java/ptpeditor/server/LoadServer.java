@@ -58,7 +58,7 @@ public class LoadServer {
  //   private static String directory = null;
  //   private static String makefile = null;
     
-    private static HashMap<String, UserInfo> userInfoMap = new HashMap<String, UserInfo>();
+    private static final HashMap<String, UserInfo> userInfoMap = new HashMap<>();
     
     /**
      *  The onOpen message sends a message back to the client side once
@@ -216,6 +216,7 @@ public class LoadServer {
      * Calls javac on all java files this method is called on. 
      * @param projectName The name of the project that is being built.
      * @param userId The ID associated with the user making the request.
+     * @param session The websocket session this is called by.
      * @return Any compilation errors, or new of a successful build.
      */ 
     public static String performBuild(String projectName, String userId, Session session) {
@@ -365,6 +366,7 @@ public class LoadServer {
      * @param payload The settings to update, separated by a special delimiter.
      * @param projectName The name of the project being worked on.
      * @param userId The id assigned to the user.
+     * @param session The websocket session that used this method.s
      * @return A message indicating the success of the action.
      */
     public static String performUpdateSettings(String payload, String projectName, String userId, Session session) {
@@ -434,6 +436,7 @@ public class LoadServer {
      * supercomputer, as determined by the IP and username provided.
      * @param projectName The name of the project.
      * @param userId The id assigned to the user.
+     * @param session The session that called this method.
      * @return 
      */
     public static String syncFiles(String projectName, String userId, Session session) {
@@ -460,8 +463,12 @@ public class LoadServer {
     }
     
     /**
-     * 
-     * @param payload
+     * This method uses a password to SSH into the target server and install a public key.
+     * @param payload The password used in the SSH.
+     * @param projectName The name of the project to use.
+     * @param session The websocket session that is registering the keypair.
+     * @param doSyncAtEnd "yes" if, after registration, a sync will be done.
+     * @param userId The ID assigned to the user that wishes to register the keypair.
      * @return 
      */
     public static String registerKeyPair(String payload, String projectName, Session session, String doSyncAtEnd, String userId) {
@@ -471,13 +478,15 @@ public class LoadServer {
         uInfo.setPassword(payload);
         
         ServerInfo info = new ServerInfo(username, ip, payload, username + "'s server for " + projectName);
-        JschUtil.registerWithServer(info);
+
         if(doSyncAtEnd.equals("yes")) {
             try {
                 session.getBasicRemote().sendText(syncFiles(projectName, userId, session));
             } catch (IOException e) {
                 System.out.println("ERROR: could not message client\n" + e.toString());
             }
+        } else {
+            JschUtil.registerWithServer(info);
         }
         
         return KEYPAIR_GENERATION_RESPONSE + (JschUtil.canConnect(info) ? "Login successful!" : "Login failure!");
