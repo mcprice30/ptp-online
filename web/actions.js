@@ -156,6 +156,9 @@ function deselect(launcher, launched) {
 function bindPopup(launcher, launched) {
     try {
     launcher.on('click', function() {
+        if(openContext !== null) {
+            closeContextMenu(openContext);
+        }
         if($(this).hasClass('selected')) {
           deselect($(this), launched);
         } else {
