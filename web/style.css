@@ -512,3 +512,34 @@ confirmDeleteProject p, confirmDeleteProject.div {
     display: inline-block;
     margin-left: 20px;
 }
+
+.hidden {
+    display: none;
+}
+
+.project_context_menu {
+    
+}
+
+.context_menu {
+    position: fixed;
+    width: auto;
+    height: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    top: 50px;
+    left: 100px;
+    z-index: 2000;
+    background-color: #555555;
+    color: #DDDDDD;
+    font-family: "Segoe UI";
+    border: 1px solid white;
+}
+
+.context_menu a {
+    background-color: #555555;
+    color: #DDDDDD;
+    display: block;
+}

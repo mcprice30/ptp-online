@@ -24,7 +24,9 @@ var deferred;
 var workspaceBase = null;
 var userName;
 var syncQueued;
-
+var openContext = null;
+var projectOpen = false;
+var fileOpen = false;
 //Gets the base string of the workspace location from a server-side GET.
 function getWorkspaceBase() {
     var xmlhttp = new XMLHttpRequest();
@@ -193,6 +195,7 @@ function closeEditor() {
     $("#editorContainer").addClass("inactive_editor_container");
     $(".file_action").addClass("file_action_inactive");
     $(".file_action").css( 'pointer-events', 'none' );
+    fileOpen = false;
 }
 
 //Opens the editor, adding the codemirror display over the background image.
@@ -204,6 +207,7 @@ function openEditor() {
 
     $(".file_action").removeClass("file_action_inactive");
     $(".file_action").css( 'pointer-events', 'auto' );
+    fileOpen = true;
 }
 
 //This provides a list of links to every directory within the user's workspace.
@@ -248,6 +252,7 @@ function listWorkspaceProjects() {
     $(".project_action").css( 'pointer-events', 'none' );
     $(".project_action").addClass("project_action_inactive");
     displayEditorOptions();
+    projectOpen = false;
 }
 
 //This uses the jquery file tree project to display the file contents of a
@@ -277,6 +282,7 @@ function showProjectDirectory(projectName) {
     
     $(".project_action").css( 'pointer-events', 'auto' );
     $(".project_action").removeClass("project_action_inactive");
+    projectOpen = true;
 }
 
 //This function begins the process of closing every open tab in a project, one
@@ -889,3 +895,56 @@ $(function(){
         $(".passwordPrompt").slideFadeToggle();
     });
 });
+
+$(function(){
+    $("#nav").on("contextmenu", function(event) {
+        if(projectOpen) {
+            openContextMenu(event, $(".project_context_menu"));
+        } else {
+            openContextMenu(event, $(".no_project_context_menu"));
+        }
+        return false;
+    });
+    
+    $("#editor").on("contextmenu", function(event){
+        if(fileOpen) {
+            openContextMenu(event, $(".file_context_menu"));
+        } else if (projectOpen) {
+            openContextMenu(event, $(".project_context_menu"));
+        } else {
+            openContextMenu(event, $(".no_project_context_menu"));
+        }
+        return false;
+    });
+});
+
+function openContextMenu(event, menu) {
+    if(openContext !== null) {
+        closeContextMenu(openContext);
+    }
+    menu.removeClass('hidden');
+    menu.css('top', event.pageY);
+    menu.css('left', event.pageX);
+    openContext = menu;
+    registerCloseContext(menu);
+}
+
+function registerCloseContext(menu) {
+    $('body').on("click", function(event) {
+        closeTimeout(event, menu);
+    });
+}
+
+function closeContextMenu(menu) {
+    menu.addClass("hidden");
+    openContext = null;
+}
+
+function closeTimeout(e, menu) {
+    if(e.button === 0) {
+        closeContextMenu(menu);
+        $('body').off("click");
+    } else if (e.button === 2) {
+        $('body').off("click");
+    } 
+}
