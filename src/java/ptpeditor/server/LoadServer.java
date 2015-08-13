@@ -481,7 +481,10 @@ public class LoadServer {
 
         if(doSyncAtEnd.equals("yes")) {
             try {
-                session.getBasicRemote().sendText(syncFiles(projectName, userId, session));
+                String response = syncFiles(projectName, userId, session);
+                if((response.charAt(0) + "").equals(SYNC_RESPONSE)) {
+                    session.getBasicRemote().sendText(response);
+                }
             } catch (IOException e) {
                 System.out.println("ERROR: could not message client\n" + e.toString());
             }
